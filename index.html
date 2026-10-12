@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Process Lab</title>
+<meta name="description" content="Interactive chemical engineering simulators: reactors, distillation, process control, heat exchangers and Arrhenius kinetics.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}]})"></script>
+<style>
+:root{--bg:#0b1016;--panel:#121a23;--panel2:#18222e;--line:#243243;--grid:#1c2734;--txt:#dbe4ee;--mut:#8796a8;--a:#2dd4bf;--b:#f59e0b;--c:#60a5fa;--d:#f472b6;--ok:#4ade80;--bad:#f87171}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font:15px/1.5 'IBM Plex Sans',system-ui,sans-serif;min-height:100vh}
+a{color:var(--a)}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 28px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.brand svg{flex:none}
+.brand h1{font-size:20px;font-weight:700;letter-spacing:.02em}
+.brand p{font-size:13px;color:var(--mut)}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav button{background:transparent;border:1px solid var(--line);color:var(--mut);font:500 13px 'IBM Plex Sans';padding:8px 14px;border-radius:8px;cursor:pointer}
+nav button:hover{color:var(--txt);border-color:#38506a}
+nav button.on{background:var(--a);border-color:var(--a);color:#04201c}
+main{padding:22px 28px 40px;max-width:1400px;margin:0 auto}
+.mod{display:none}.mod.on{display:block}
+.intro{max-width:900px;margin-bottom:18px}
+.intro h2{font-size:24px;margin-bottom:4px}
+.intro p{color:var(--mut)}
+.grid{display:grid;grid-template-columns:330px 1fr;gap:18px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h3{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-bottom:12px;font-weight:600}
+.ctl{display:block;margin-bottom:13px}
+.ctl span{display:flex;justify-content:space-between;font-size:13px;color:var(--mut);margin-bottom:4px}
+.ctl b{color:var(--txt);font:500 13px 'IBM Plex Mono'}
+input[type=range]{width:100%;accent-color:var(--a)}
+select,textarea,input[type=number]{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font:14px 'IBM Plex Sans'}
+textarea{font:13px/1.5 'IBM Plex Mono';resize:vertical}
+.btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.btn{background:var(--panel2);border:1px solid var(--line);color:var(--txt);font:500 13px 'IBM Plex Sans';padding:7px 11px;border-radius:8px;cursor:pointer}
+.btn:hover{border-color:var(--a)}.btn.on{border-color:var(--a);color:var(--a)}
+.out{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.kpi small{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.kpi b{font:500 21px 'IBM Plex Mono'}
+.kpi.a b{color:var(--a)}.kpi.b b{color:var(--b)}.kpi.c b{color:var(--c)}.kpi.d b{color:var(--d)}
+.plots{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.plots .card{padding:12px}
+canvas{display:block;width:100%}
+canvas.p{height:320px}canvas.s{height:170px}canvas.t{height:360px}
+.note{margin-top:14px;padding:12px 14px;border-left:3px solid var(--a);background:rgba(45,212,191,.06);border-radius:0 8px 8px 0;font-size:14px}
+.note.warn{border-color:var(--b);background:rgba(245,158,11,.07)}
+.learn{margin-top:18px;display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
+.learn h4{font-size:15px;margin-bottom:6px}
+.learn p,.learn li{color:#b7c3d1;font-size:14px}
+.learn ul{padding-left:18px}.learn li{margin:4px 0}
+.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin:2px 4px 8px}
+.leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+footer{border-top:1px solid var(--line);padding:18px 28px;color:var(--mut);font-size:13px;text-align:center}
+.katex{font-size:1.02em}
+@media(max-width:980px){.grid,.plots,.learn{grid-template-columns:1fr}header,main{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <svg width="38" height="38" viewBox="0 0 38 38" aria-hidden="true"><path d="M14 4h10M16 4v10L6 31a3 3 0 0 0 2.6 4.5h20.8A3 3 0 0 0 32 31L22 14V4" fill="none" stroke="#2dd4bf" stroke-width="2.2" stroke-linejoin="round"/><path d="M10.5 24h17l4 7.2a1.6 1.6 0 0 1-1.4 2.4H8a1.6 1.6 0 0 1-1.4-2.4z" fill="#2dd4bf" opacity=".35"/><circle cx="17" cy="28" r="1.6" fill="#f59e0b"/><circle cx="22" cy="30" r="1.1" fill="#f59e0b"/></svg>
+    <div><h1>Process Lab</h1><p>Interactive chemical engineering simulators</p></div>
+  </div>
+  <nav id="nav">
+    <button data-t="reactor">⚗️ Reactors</button>
+    <button data-t="distill">🧪 Distillation</button>
+    <button data-t="control">🎛️ Process Control</button>
+    <button data-t="hx">🔥 Heat Exchanger</button>
+    <button data-t="kinetics">📓 Lab Notebook</button>
+  </nav>
+</header>
+
+<main>
+<!-- ═══════════════ REACTOR ═══════════════ -->
+<section class="mod" id="reactor">
+  <div class="intro"><h2>Reactor Design: CSTR vs. PFR</h2><p>Liquid-phase reaction A → B in two ideal reactors. Change the temperature, size and flow to see how conversion responds, and why the shape of a reactor matters as much as its size.</p></div>
+  <div class="grid">
+    <div class="card"><h3>Operating conditions</h3>
+      <label class="ctl"><span>Reaction order</span><select id="r_order"><option value="1">First order: −r = k·C<sub>A</sub></option><option value="2">Second order: −r = k·C<sub>A</sub>²</option></select></label>
+      <div id="r_ctl"></div>
+    </div>
+    <div>
+      <div class="out" id="r_out"></div>
+      <div class="card" style="margin-bottom:14px"><canvas class="s" id="r_sch"></canvas></div>
+      <div class="plots">
+        <div class="card"><div class="leg"><span><i style="background:var(--b)"></i>CSTR</span><span><i style="background:var(--a)"></i>PFR</span><span><i style="background:var(--mut)"></i>target</span></div><canvas class="p" id="r_p1"></canvas></div>
+        <div class="card"><div class="leg"><span><i style="background:var(--b)"></i>CSTR (perfectly mixed)</span><span><i style="background:var(--a)"></i>PFR (along the tube)</span></div><canvas class="p" id="r_p2"></canvas></div>
+      </div>
+      <div class="note" id="r_note"></div>
+    </div>
+  </div>
+  <div class="learn">
+    <div class="card"><h4>The engineering</h4>
+      <p>The rate constant follows the <b>Arrhenius equation</b>, so temperature has an exponential effect: \(k = k_{350}\,\exp\!\left[-\tfrac{E_a}{R}\left(\tfrac{1}{T}-\tfrac{1}{350\,\text{K}}\right)\right]\).</p>
+      <p style="margin-top:8px">Residence time \(\tau = V/v_0\). Mole balances for first order give \(X_{\text{CSTR}} = \dfrac{k\tau}{1+k\tau}\) and \(X_{\text{PFR}} = 1-e^{-k\tau}\). For second order: \(k C_{A0}\tau(1-X)^2 = X\) (CSTR) and \(X = \dfrac{kC_{A0}\tau}{1+kC_{A0}\tau}\) (PFR).</p>
+    </div>
+    <div class="card"><h4>Try this</h4><ul>
+      <li>Push the target to 99%. Why does the CSTR's required volume explode?</li>
+      <li>Raise the temperature by 10 K. How much faster is the reaction? Compare a high and a low activation energy.</li>
+      <li>Switch to second order. Does the PFR's advantage grow or shrink?</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ═══════════════ DISTILLATION ═══════════════ -->
+<section class="mod" id="distill">
+  <div class="intro"><h2>Distillation: McCabe–Thiele Method</h2><p>Design a column that separates a two-component mixture. Each step of the staircase is one theoretical stage, a tray where vapor and liquid reach equilibrium.</p></div>
+  <div class="grid">
+    <div class="card"><h3>Column specification</h3>
+      <div class="btns" id="d_pre"><button class="btn" data-a="2.4">Benzene / Toluene</button><button class="btn" data-a="4">Easy split</button><button class="btn" data-a="1.5">Hard split</button></div>
+      <div id="d_ctl"></div>
+    </div>
+    <div>
+      <div class="out" id="d_out"></div>
+      <div class="plots" style="grid-template-columns:1.6fr 1fr">
+        <div class="card"><div class="leg"><span><i style="background:var(--c)"></i>Equilibrium</span><span><i style="background:var(--a)"></i>Rectifying line</span><span><i style="background:var(--d)"></i>Stripping line</span><span><i style="background:var(--b)"></i>q-line</span></div><canvas class="t" id="d_p"></canvas></div>
+        <div class="card"><canvas class="t" id="d_col"></canvas></div>
+      </div>
+      <div class="note" id="d_note"></div>
+    </div>
+  </div>
+  <div class="learn">
+    <div class="card"><h4>The engineering</h4>
+      <p>With constant relative volatility \(\alpha\), equilibrium is \(y = \dfrac{\alpha x}{1+(\alpha-1)x}\). Above the feed, the rectifying line is \(y = \dfrac{R}{R+1}x + \dfrac{x_D}{R+1}\). The feed condition \(q\) sets the q-line \(y = \dfrac{q}{q-1}x - \dfrac{x_F}{q-1}\).</p>
+      <p style="margin-top:8px">The <b>minimum reflux</b> \(R_{min}\) is where the operating line touches the equilibrium curve (a "pinch", which would need infinitely many stages). <b>Fenske</b> gives the minimum stages at total reflux: \(N_{min} = \dfrac{\ln\!\left[\frac{x_D}{1-x_D}\cdot\frac{1-x_B}{x_B}\right]}{\ln\alpha}\).</p>
+    </div>
+    <div class="card"><h4>Try this</h4><ul>
+      <li>Slide the reflux toward 1.05 × R<sub>min</sub>. Watch the staircase crowd into the pinch.</li>
+      <li>Crank the reflux up. Fewer stages, but every unit of reflux costs reboiler energy. That's the classic design trade-off.</li>
+      <li>Try the hard split (α = 1.5) at 99% purity. This is why some separations need huge towers.</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ═══════════════ CONTROL ═══════════════ -->
+<section class="mod" id="control">
+  <div class="intro"><h2>Process Control: PID Tank Level</h2><p>A level controller (LC) reads the level transmitter (LT) and adjusts the inlet valve to hold the tank at its setpoint. The inlet pipe adds a 4-second dead time, which is what makes control hard. Tune the controller and then disturb it.</p></div>
+  <div class="grid">
+    <div class="card"><h3>Controller</h3>
+      <div class="btns" id="c_pre"><button class="btn" data-p="slow">Sluggish</button><button class="btn" data-p="good">Well tuned</button><button class="btn" data-p="osc">Aggressive</button><button class="btn" data-p="ponly">P-only</button></div>
+      <div id="c_ctl"></div>
+      <div class="btns" style="margin-top:4px"><button class="btn" id="c_step">Setpoint +0.8 m</button><button class="btn" id="c_dist">Open drain valve</button><button class="btn" id="c_reset">Reset</button></div>
+      <label class="ctl" style="margin-top:6px"><span>Mode</span><select id="c_mode"><option value="auto">Automatic (PID)</option><option value="man">Manual (you drive the valve)</option></select></label>
+      <div id="c_man"></div>
+    </div>
+    <div>
+      <div class="out" id="c_out"></div>
+      <div class="plots" style="grid-template-columns:1fr 1.7fr">
+        <div class="card"><canvas class="t" id="c_tank"></canvas></div>
+        <div class="card"><div class="leg"><span><i style="background:var(--c)"></i>Level</span><span><i style="background:var(--b)"></i>Setpoint</span><span><i style="background:var(--d)"></i>Inlet valve %</span></div><canvas class="t" id="c_p"></canvas></div>
+      </div>
+      <div class="note" id="c_note"></div>
+    </div>
+  </div>
+  <div class="learn">
+    <div class="card"><h4>The engineering</h4>
+      <p>Tank mass balance: \(A\dfrac{dh}{dt} = F_{in}(t-\theta) - k_v\sqrt{h}\), where \(\theta\) is the pipe's dead time. The controller output is
+      \[u = \bar u + K_c\left[e + \frac{1}{\tau_I}\int e\,dt - \tau_D\frac{dh}{dt}\right],\quad e = h_{sp}-h\]</p>
+      <p>The integral term removes offset, the derivative term acts on the measurement to avoid "derivative kick", and anti-windup stops the integral from growing while the valve is pinned fully open or shut.</p>
+    </div>
+    <div class="card"><h4>Try this</h4><ul>
+      <li>Pick <b>P-only</b> and step the setpoint. The level never quite gets there: that's <b>offset</b>. Now add integral action.</li>
+      <li>Pick <b>Aggressive</b>. The dead time turns a big gain into growing oscillations: the loop is unstable.</li>
+      <li>Switch to manual, then back to automatic. The handover is "bumpless".</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ═══════════════ HEAT EXCHANGER ═══════════════ -->
+<section class="mod" id="hx">
+  <div class="intro"><h2>Heat Exchanger: Counter-current vs. Co-current</h2><p>A double-pipe exchanger: hot fluid in the inner pipe, cold water in the outer shell. Size it, then flip the flow direction to see why industry almost always runs exchangers counter-current.</p></div>
+  <div class="grid">
+    <div class="card"><h3>Streams &amp; exchanger</h3>
+      <div class="btns" id="h_arr"><button class="btn on" data-c="1">Counter-current</button><button class="btn" data-c="0">Co-current</button></div>
+      <label class="ctl"><span>Hot fluid</span><select id="h_fluid"><option value="4.18">Hot water (c<sub>p</sub> 4.18 kJ/kg·K)</option><option value="2.1">Light oil (c<sub>p</sub> 2.1 kJ/kg·K)</option></select></label>
+      <div id="h_ctl"></div>
+    </div>
+    <div>
+      <div class="out" id="h_out"></div>
+      <div class="card" style="margin-bottom:14px"><canvas class="s" id="h_sch"></canvas></div>
+      <div class="card"><div class="leg"><span><i style="background:var(--bad)"></i>Hot stream</span><span><i style="background:var(--c)"></i>Cold stream</span></div><canvas class="p" id="h_p"></canvas></div>
+      <div class="note" id="h_note"></div>
+    </div>
+  </div>
+  <div class="learn">
+    <div class="card"><h4>The engineering</h4>
+      <p>Heat duty \(Q = U A\,\Delta T_{lm}\) with the log-mean temperature difference \(\Delta T_{lm} = \dfrac{\Delta T_1-\Delta T_2}{\ln(\Delta T_1/\Delta T_2)}\). For rating an existing exchanger, the <b>ε-NTU method</b> avoids trial and error: \(NTU = \dfrac{UA}{C_{min}}\), and for counter-current
+      \[\varepsilon = \frac{1-e^{-NTU(1-C_r)}}{1-C_r\,e^{-NTU(1-C_r)}},\qquad Q = \varepsilon\,C_{min}\,(T_{h,in}-T_{c,in})\]</p>
+    </div>
+    <div class="card"><h4>Try this</h4><ul>
+      <li>Make the area huge in co-current mode. The outlets meet in the middle and can never cross.</li>
+      <li>Do the same in counter-current mode. The cold outlet can end up <i>hotter</i> than the hot outlet (a "temperature cross").</li>
+      <li>Compare how much area each arrangement needs for the same duty.</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ═══════════════ KINETICS ═══════════════ -->
+<section class="mod" id="kinetics">
+  <div class="intro"><h2>Lab Notebook: Measure an Activation Energy</h2><p>A real kitchen experiment: time how long an effervescent tablet takes to dissolve in water at different temperatures. A faster dissolve means a bigger rate, \(k \propto 1/t\). Fit an Arrhenius plot to find the activation energy, then use it to predict.</p></div>
+  <div class="grid">
+    <div class="card"><h3>Your data</h3>
+      <p style="font-size:13px;color:var(--mut);margin-bottom:8px">One line per trial: <code>temperature °C, time in seconds</code></p>
+      <textarea id="k_data" rows="9"></textarea>
+      <p style="font-size:12px;color:var(--b);margin:6px 0 12px">The prefilled numbers are made-up example data. Replace them with your own measurements.</p>
+      <label class="ctl"><span>Predict dissolve time at<b id="k_pT_v"></b></span><input type="range" id="k_pT" min="0" max="90" step="1" value="70"></label>
+      <h3 style="margin-top:16px">How to run it safely</h3>
+      <ol style="font-size:13px;color:#b7c3d1;padding-left:18px">
+        <li>Use the same volume of water (e.g. 200 mL) and the same tablet brand every time.</li>
+        <li>Mix tap and kettle water to hit each temperature. Check it with a kitchen thermometer.</li>
+        <li>Drop the tablet in, start a timer, and stop it when the fizzing ends.</li>
+        <li>Do 5+ temperatures and repeat each one. Average the repeats.</li>
+        <li>Be careful with hot water, and ask an adult before using the kettle.</li>
+      </ol>
+    </div>
+    <div>
+      <div class="out" id="k_out"></div>
+      <div class="plots">
+        <div class="card"><div class="leg"><span><i style="background:var(--b)"></i>Arrhenius plot: ln k vs 1000/T</span></div><canvas class="p" id="k_p1"></canvas></div>
+        <div class="card"><div class="leg"><span><i style="background:var(--a)"></i>Model</span><span><i style="background:var(--b)"></i>Your measurements</span><span><i style="background:var(--d)"></i>Prediction</span></div><canvas class="p" id="k_p2"></canvas></div>
+      </div>
+      <div class="note" id="k_note"></div>
+    </div>
+  </div>
+  <div class="learn">
+    <div class="card"><h4>The science</h4>
+      <p>Taking the log of the Arrhenius equation turns a curve into a straight line: \(\ln k = \ln A - \dfrac{E_a}{R}\cdot\dfrac{1}{T}\). So plotting \(\ln k\) against \(1/T\) (in kelvin) gives a slope of \(-E_a/R\). Least-squares regression finds the best-fit line, and \(R^2\) tells you how well your data follows Arrhenius behavior.</p>
+    </div>
+    <div class="card"><h4>Going further</h4><ul>
+      <li>A tablet dissolving is part reaction, part mass transfer. Does crushing the tablet change your E<sub>a</sub>?</li>
+      <li>Add an outlier on purpose and watch R² drop. This is why repeats matter.</li>
+      <li>Use your E<sub>a</sub> in the Reactors tab to see how your "reaction" would behave in a plant.</li>
+    </ul></div>
+  </div>
+</section>
+</main>
+<footer>Process Lab: built by Arnav Sharma · vanilla JavaScript + Canvas · <a href="https://github.com/arnav080603/process-lab">source on GitHub</a></footer>
+
+<script>
+// ══════════ SHARED: plotting & UI helpers ══════════
+const $=id=>document.getElementById(id);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const v=id=>+$(id).value;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+const f=(x,d=2)=>Number.isFinite(x)?x.toFixed(d):'—';
+function niceStep(r){const e=Math.pow(10,Math.floor(Math.log10(r))),q=r/e;return (q<1.5?1:q<3?2:q<7?5:10)*e}
+function ticks(a,b,n){const s=niceStep((b-a)/n),o=[];for(let t=Math.ceil(a/s-1e-9)*s;t<=b+1e-9;t+=s)o.push(+t.toFixed(10));return o}
+const tickFmt=t=>Math.abs(t)>=1000?t.toFixed(0):String(+t.toPrecision(4));
+function setup(cv){const d=devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;if(!W)return null;if(cv.width!==Math.round(W*d)||cv.height!==Math.round(H*d)){cv.width=Math.round(W*d);cv.height=Math.round(H*d)}const c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);c.clearRect(0,0,W,H);return {c,W,H}}
+// Generic line chart: axes, grid, series, points. Returns coordinate mappers for custom overlays.
+function plot(cv,o){const s=setup(cv);if(!s)return null;const {c,W,H}=s;
+  const m={l:58,r:16,t:12,b:44},pw=W-m.l-m.r,ph=H-m.t-m.b,[x0,x1]=o.x,[y0,y1]=o.y;
+  const X=x=>m.l+(x-x0)/(x1-x0)*pw,Y=y=>m.t+ph-(y-y0)/(y1-y0)*ph;
+  c.font="11px 'IBM Plex Mono',monospace";c.lineWidth=1;
+  for(const t of ticks(x0,x1,o.nx||6)){c.strokeStyle=css('--grid');c.beginPath();c.moveTo(X(t),m.t);c.lineTo(X(t),m.t+ph);c.stroke();c.fillStyle=css('--mut');c.textAlign='center';c.fillText(tickFmt(t),X(t),m.t+ph+15)}
+  for(const t of ticks(y0,y1,o.ny||5)){c.strokeStyle=css('--grid');c.beginPath();c.moveTo(m.l,Y(t));c.lineTo(m.l+pw,Y(t));c.stroke();c.fillStyle=css('--mut');c.textAlign='right';c.fillText(tickFmt(t),m.l-6,Y(t)+4)}
+  c.strokeStyle=css('--line');c.strokeRect(m.l,m.t,pw,ph);
+  c.font="12px 'IBM Plex Sans',sans-serif";c.fillStyle=css('--mut');c.textAlign='center';c.fillText(o.xl||'',m.l+pw/2,H-6);
+  c.save();c.translate(13,m.t+ph/2);c.rotate(-Math.PI/2);c.fillText(o.yl||'',0,0);c.restore();
+  c.save();c.beginPath();c.rect(m.l,m.t,pw,ph);c.clip();
+  for(const sr of o.series||[]){if(!sr.pts.length)continue;c.strokeStyle=sr.color;c.lineWidth=sr.w||2.2;c.setLineDash(sr.dash||[]);c.beginPath();sr.pts.forEach(([x,y],i)=>i?c.lineTo(X(x),Y(y)):c.moveTo(X(x),Y(y)));c.stroke()}
+  c.setLineDash([]);
+  for(const p of o.points||[]){c.fillStyle=p.color;c.strokeStyle=css('--bg');c.lineWidth=2;c.beginPath();c.arc(X(p.x),Y(p.y),p.r||5,0,7);c.fill();c.stroke();if(p.label){c.fillStyle=p.color;c.font="600 12px 'IBM Plex Sans',sans-serif";c.textAlign=p.align||'left';c.fillText(p.label,X(p.x)+(p.align==='right'?-9:9),Y(p.y)-9)}}
+  c.restore();return {c,X,Y,m,pw,ph,W,H}}
+// Slider builder: specs → labelled range inputs, calling onchange on every move.
+function sliders(host,specs,onchange){for(const s of specs){const w=document.createElement('label');w.className='ctl';
+  w.innerHTML=`<span>${s.label}<b id="${s.id}_v"></b></span><input type="range" id="${s.id}" min="${s.min}" max="${s.max}" step="${s.step}" value="${s.val}">`;$(host).appendChild(w);
+  const i=w.querySelector('input'),upd=()=>{$(s.id+'_v').textContent=(s.fmt?s.fmt(+i.value):i.value)+(s.unit?' '+s.unit:'')};
+  i.addEventListener('input',()=>{upd();onchange()});i._upd=upd;upd()}}
+function setSlider(id,val){$(id).value=val;$(id)._upd()}
+function kpis(host,items){$(host).innerHTML=items.map(([l,val,cls])=>`<div class="kpi ${cls||''}"><small>${l}</small><b>${val}</b></div>`).join('')}
+const mix=(a,b,t)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)),A=p(a),B=p(b);return `rgb(${A.map((x,i)=>Math.round(x+(B[i]-x)*clamp(t,0,1))).join(',')})`};
+const R_GAS=8.314;
+
+// ══════════ MODULE 1: REACTORS ══════════
+const RX={
+  k(T,Ea){return 0.1*Math.exp(-Ea*1000/R_GAS*(1/T-1/350))},
+  // Conversion from Damköhler number Da = kτ (1st order) or k·CA0·τ (2nd order)
+  cstr(Da,n){if(Da<1e-12)return Da;return n===1?Da/(1+Da):((2*Da+1)-Math.sqrt(4*Da+1))/(2*Da)},
+  pfr(Da,n){return n===1?1-Math.exp(-Da):Da/(1+Da)},
+  // Residence time needed for a target conversion
+  tauC(X,kk,n){return n===1?X/(kk*(1-X)):X/(kk*(1-X)**2)},
+  tauP(X,kk,n){return n===1?-Math.log(1-X)/kk:X/(kk*(1-X))}
+};
+sliders('r_ctl',[
+  {id:'r_T',label:'Temperature',min:300,max:420,step:1,val:350,unit:'K'},
+  {id:'r_Ea',label:'Activation energy Eₐ',min:20,max:150,step:1,val:65,unit:'kJ/mol'},
+  {id:'r_V',label:'Reactor volume V',min:10,max:3000,step:10,val:500,unit:'L'},
+  {id:'r_v0',label:'Feed flow v₀',min:1,max:50,step:0.5,val:10,unit:'L/min'},
+  {id:'r_CA0',label:'Feed concentration C_A0',min:0.2,max:5,step:0.1,val:1,unit:'mol/L'},
+  {id:'r_X',label:'Target conversion',min:0.5,max:0.99,step:0.01,val:0.9,fmt:x=>Math.round(x*100)+'%'}
+],drawReactor);
+$('r_order').onchange=drawReactor;
+function reactorState(){const n=+$('r_order').value,T=v('r_T'),Ea=v('r_Ea'),V=v('r_V'),v0=v('r_v0'),CA0=v('r_CA0'),Xt=v('r_X');
+  const k=RX.k(T,Ea),kk=n===1?k:k*CA0,tau=V/v0,Da=kk*tau;
+  return {n,T,Ea,V,v0,CA0,Xt,k,kk,tau,Da,Xc:RX.cstr(Da,n),Xp:RX.pfr(Da,n),VC:RX.tauC(Xt,kk,n)*v0,VP:RX.tauP(Xt,kk,n)*v0,k10:RX.k(T+10,Ea)/k}}
+function drawReactor(){const s=reactorState(),ku=s.n===1?'min⁻¹':'L/mol·min',fmtV=x=>x>=1e5?x.toExponential(1):x>=100?x.toFixed(0):x.toFixed(1);
+  kpis('r_out',[['Rate constant k',`${s.k<0.01?s.k.toExponential(2):f(s.k,3)} <small style="display:inline;font-size:12px">${ku}</small>`],['Residence time τ',f(s.tau,1)+' min'],['Damköhler no.',f(s.Da,2)],['CSTR conversion',(s.Xc*100).toFixed(1)+'%','b'],['PFR conversion',(s.Xp*100).toFixed(1)+'%','a']]);
+  const xmax=Math.max(2*s.tau,RX.tauP(Math.min(0.97,Math.max(s.Xt,.8)),s.kk,s.n)*1.2),N=160,c1=[],c2=[];
+  for(let i=0;i<=N;i++){const t=xmax*i/N;c1.push([t,RX.cstr(s.kk*t,s.n)*100]);c2.push([t,RX.pfr(s.kk*t,s.n)*100])}
+  plot($('r_p1'),{x:[0,xmax],y:[0,100],xl:'Residence time τ (min)',yl:'Conversion X (%)',series:[{pts:[[0,s.Xt*100],[xmax,s.Xt*100]],color:css('--mut'),dash:[5,5],w:1.4},{pts:c1,color:css('--b')},{pts:c2,color:css('--a')}],
+    points:[{x:s.tau,y:s.Xc*100,color:css('--b'),label:'CSTR',align:'left'},{x:s.tau,y:s.Xp*100,color:css('--a'),label:'PFR',align:'right'}]});
+  const prof=[];for(let i=0;i<=N;i++){const z=i/N;prof.push([z,1-RX.pfr(s.Da*z,s.n)])}
+  plot($('r_p2'),{x:[0,1],y:[0,1],xl:'Position through reactor (fraction of volume)',yl:'C_A / C_A0',series:[{pts:[[0,1],[0,1-s.Xc],[1,1-s.Xc]],color:css('--b')},{pts:prof,color:css('--a')}]});
+  const ratio=s.VC/s.VP;
+  $('r_note').innerHTML=`To reach <b>${Math.round(s.Xt*100)}%</b> conversion at ${s.v0} L/min, a CSTR needs <b>${fmtV(s.VC)} L</b> but a PFR only <b>${fmtV(s.VP)} L</b>, which is <b>${f(ratio,1)}× smaller</b>. The CSTR runs entirely at the low <i>outlet</i> concentration, so it reacts slowly everywhere. The PFR sees high concentration near its inlet. And raising the temperature by 10 K speeds the reaction up <b>${f(s.k10,2)}×</b>.`;
+  reactorAnim.s=s}
+const reactorAnim={s:null,t:0};
+function animReactor(dt){const s=reactorAnim.s;if(!s)return;reactorAnim.t+=dt;const S=setup($('r_sch'));if(!S)return;const {c,W,H}=S,A=css('--c'),B=css('--b'),t=reactorAnim.t;
+  // CSTR: stirred tank, uniform color at outlet composition
+  const cx=Math.min(140,W*.18),tw=110,th=110,ty=(H-th)/2+8;
+  c.fillStyle=mix(A,B,s.Xc);c.globalAlpha=.85;c.fillRect(cx-tw/2,ty+14,tw,th-14);c.globalAlpha=1;
+  c.strokeStyle=css('--txt');c.lineWidth=2;c.strokeRect(cx-tw/2,ty,tw,th);
+  c.beginPath();c.moveTo(cx,ty-18);c.lineTo(cx,ty+th-28);c.stroke();
+  const a=t*6;c.lineWidth=4;c.beginPath();c.moveTo(cx-26*Math.cos(a),ty+th-28);c.lineTo(cx+26*Math.cos(a),ty+th-28);c.stroke();
+  c.lineWidth=2;c.beginPath();c.moveTo(cx-tw/2-30,ty+24);c.lineTo(cx-tw/2,ty+24);c.moveTo(cx+tw/2,ty+th-16);c.lineTo(cx+tw/2+30,ty+th-16);c.stroke();
+  c.fillStyle=css('--txt');c.font="600 13px 'IBM Plex Sans',sans-serif";c.textAlign='center';c.fillText('CSTR',cx,ty-24);c.font="12px 'IBM Plex Mono',monospace";c.fillStyle=B;c.fillText('X = '+(s.Xc*100).toFixed(1)+'%',cx,ty+th+20);
+  // PFR: tube with axial composition gradient and flowing particles
+  const px=cx+tw/2+90,pw=W-px-40,py=H/2-4,pr=22;if(pw<80)return;
+  const g=c.createLinearGradient(px,0,px+pw,0);for(let i=0;i<=10;i++){const z=i/10;g.addColorStop(z,mix(A,B,RX.pfr(s.Da*z,s.n)))}
+  c.fillStyle=g;c.globalAlpha=.85;c.fillRect(px,py-pr,pw,2*pr);c.globalAlpha=1;c.strokeStyle=css('--txt');c.strokeRect(px,py-pr,pw,2*pr);
+  for(let i=0;i<18;i++){const z=((i/18)+t*0.08)%1,yy=py+Math.sin(i*2.1)*pr*.6;c.fillStyle='rgba(255,255,255,.55)';c.beginPath();c.arc(px+z*pw,yy,2.2,0,7);c.fill()}
+  c.lineWidth=2;c.beginPath();c.moveTo(px-30,py);c.lineTo(px,py);c.moveTo(px+pw,py);c.lineTo(px+pw+24,py);c.stroke();
+  c.fillStyle=css('--txt');c.font="600 13px 'IBM Plex Sans',sans-serif";c.fillText('PFR (plug flow)',px+pw/2,py-pr-12);c.font="12px 'IBM Plex Mono',monospace";c.fillStyle=css('--a');c.fillText('X = '+(s.Xp*100).toFixed(1)+'%',px+pw/2,py+pr+22);
+  c.fillStyle=css('--mut');c.font="11px 'IBM Plex Sans',sans-serif";c.textAlign='left';c.fillText('■ reactant A',px,H-6);c.fillStyle=B;c.fillText('■ product B',px+90,H-6)}
+
+// ══════════ MODULE 2: DISTILLATION (McCabe–Thiele) ══════════
+function mccabe(p){const {a,xF,xD,xB,q}=p,eqY=x=>a*x/(1+(a-1)*x),eqX=y=>y/(a-(a-1)*y);
+  // Pinch point: q-line ∩ equilibrium curve
+  let xp,yp;if(Math.abs(q-1)<1e-6){xp=xF;yp=eqY(xF)}else if(Math.abs(q)<1e-6){yp=xF;xp=eqX(xF)}else{
+    const A=q*(a-1),B=q-xF*(a-1)-a*(q-1),C=-xF,dd=Math.sqrt(B*B-4*A*C),r=[(-B+dd)/(2*A),(-B-dd)/(2*A)].filter(x=>x>=-1e-9&&x<=1+1e-9);xp=r[0];yp=eqY(xp)}
+  let Rmin=(xD-yp)/(yp-xp),warn='';if(!(Rmin>0.02)){Rmin=0.02;warn='This feed is already richer than the distillate spec needs, so almost no reflux is required.'}
+  const R=p.Rm*Rmin,rect=x=>R/(R+1)*x+xD/(R+1);
+  let xi;if(Math.abs(q-1)<1e-6)xi=xF;else if(Math.abs(q)<1e-6)xi=(xF-xD/(R+1))*(R+1)/R;else xi=(-xF/(q-1)-xD/(R+1))/(R/(R+1)-q/(q-1));
+  const yi=rect(xi),sl=(yi-xB)/(xi-xB),strip=x=>xB+sl*(x-xB);
+  // Step off stages from the top: horizontal to equilibrium, vertical to the active operating line
+  const st=[];let x=xD,y=xD,feed=null;
+  for(let n=1;n<=120;n++){const xn=eqX(y);st.push([x,y,xn]);if(xn<=xB)break;if(feed===null&&xn<xi)feed=n;y=xn>=xi?rect(xn):strip(xn);x=xn}
+  if(feed===null)feed=st.length;
+  const Nmin=Math.log((xD/(1-xD))*((1-xB)/xB))/Math.log(a);
+  const Xg=(R-Rmin)/(R+1),Yg=0.75*(1-Math.pow(Xg,0.5668)),Ng=(Nmin+Yg)/(1-Yg); // Gilliland (Eduljee form)
+  return {eqY,eqX,Rmin,R,rect,strip,xi,yi,st,N:st.length,feed,Nmin,Ng,xp,yp,warn,capped:st.length>=120}}
+sliders('d_ctl',[
+  {id:'d_a',label:'Relative volatility α',min:1.3,max:6,step:0.05,val:2.4},
+  {id:'d_xF',label:'Feed composition x_F',min:0.2,max:0.8,step:0.01,val:0.5},
+  {id:'d_xD',label:'Distillate purity x_D',min:0.8,max:0.995,step:0.005,val:0.95},
+  {id:'d_xB',label:'Bottoms composition x_B',min:0.005,max:0.15,step:0.005,val:0.05},
+  {id:'d_q',label:'Feed condition q',min:-0.5,max:1.5,step:0.05,val:1,fmt:q=>q.toFixed(2)+(Math.abs(q-1)<.01?' (sat. liquid)':Math.abs(q)<.01?' (sat. vapor)':q>1?' (subcooled)':q<0?' (superheated)':' (part vapor)')},
+  {id:'d_R',label:'Reflux ratio R / R_min',min:1.05,max:4,step:0.05,val:1.5,fmt:x=>x.toFixed(2)+'×'}
+],drawDistill);
+document.querySelectorAll('#d_pre .btn').forEach(b=>b.onclick=()=>{setSlider('d_a',b.dataset.a);drawDistill()});
+function drawDistill(){const p={a:v('d_a'),xF:v('d_xF'),xD:v('d_xD'),xB:v('d_xB'),q:v('d_q'),Rm:v('d_R')},r=mccabe(p);
+  kpis('d_out',[['Min. reflux R_min',f(r.Rmin,2)],['Reflux ratio R',f(r.R,2),'a'],['Theoretical stages',r.capped?'>120':r.N,'b'],['Feed stage',r.feed,'d'],['Fenske N_min',f(r.Nmin,1),'c']]);
+  const eq=[];for(let i=0;i<=200;i++){const x=i/200;eq.push([x,r.eqY(x)])}
+  const stairs=[];for(const [x,y,xn] of r.st){stairs.push([x,y],[xn,y]);const yn=xn>=r.xi?r.rect(xn):r.strip(xn);stairs.push([xn,Math.max(xn,Math.min(yn,y))])}
+  const P=plot($('d_p'),{x:[0,1],y:[0,1],nx:5,ny:5,xl:'x, liquid mole fraction of light component',yl:'y, vapor mole fraction',series:[
+    {pts:[[0,0],[1,1]],color:css('--mut'),w:1},{pts:eq,color:css('--c')},
+    {pts:[[p.xF,p.xF],[r.xi,r.yi]],color:css('--b'),w:1.8},{pts:[[r.xi,r.yi],[p.xD,p.xD]],color:css('--a')},{pts:[[p.xB,p.xB],[r.xi,r.yi]],color:css('--d')},
+    {pts:stairs,color:css('--txt'),w:1.3}],points:[{x:p.xD,y:p.xD,color:css('--a'),r:4},{x:p.xB,y:p.xB,color:css('--d'),r:4},{x:p.xF,y:p.xF,color:css('--b'),r:4}]});
+  if(P&&r.N<=40){P.c.fillStyle=css('--mut');P.c.font="10px 'IBM Plex Mono',monospace";P.c.textAlign='center';r.st.forEach(([x,y,xn],i)=>P.c.fillText(i+1,P.X((x+xn)/2),P.Y(y)-4))}
+  drawColumn(r,p);
+  const duty=r.R+1;
+  $('d_note').className='note'+(r.warn||p.Rm<1.15?' warn':'');
+  $('d_note').innerHTML=(r.warn?r.warn+' ':'')+`This column needs <b>${r.capped?'more than 120':r.N} theoretical stages</b> (counting the reboiler as one), fed on stage <b>${r.feed}</b> from the top. The Gilliland shortcut correlation predicts <b>${f(r.Ng,1)}</b>, a useful sanity check on the graphical answer. Every mole of distillate needs <b>${f(duty,2)} mol</b> of vapor from the reboiler, so energy cost rises with reflux.`+(p.Rm<1.15?' <b>You are near minimum reflux:</b> the steps are pinching where the operating line meets the equilibrium curve.':'')}
+function drawColumn(r,p){const S=setup($('d_col'));if(!S)return;const {c,W,H}=S,n=Math.min(r.N,60),cw=Math.min(90,W*.32),cx=W/2,top=34,bot=H-58,h=bot-top,tray=h/n;
+  c.strokeStyle=css('--txt');c.lineWidth=2;c.beginPath();c.roundRect(cx-cw/2,top,cw,h,cw/2>40?28:16);c.stroke();
+  for(let i=1;i<n;i++){const y=top+i*tray;const fe=i===r.feed;c.strokeStyle=fe?css('--b'):css('--line');c.lineWidth=fe?2.5:1;c.beginPath();c.moveTo(cx-cw/2+6,y);c.lineTo(cx+cw/2-6,y);c.stroke()}
+  const fy=top+(r.feed-.5)*tray;c.strokeStyle=css('--b');c.lineWidth=2;c.beginPath();c.moveTo(cx-cw/2-46,fy);c.lineTo(cx-cw/2,fy);c.stroke();c.beginPath();c.moveTo(cx-cw/2-8,fy-5);c.lineTo(cx-cw/2,fy);c.lineTo(cx-cw/2-8,fy+5);c.stroke();
+  c.fillStyle=css('--b');c.font="600 12px 'IBM Plex Sans',sans-serif";c.textAlign='right';c.fillText('Feed',cx-cw/2-10,fy-8);
+  c.textAlign='center';c.fillStyle=css('--a');c.fillText(`Distillate x = ${p.xD}`,cx,top-12);c.fillStyle=css('--d');c.fillText(`Bottoms x = ${p.xB}`,cx,bot+22);
+  c.fillStyle=css('--mut');c.font="11px 'IBM Plex Sans',sans-serif";c.fillText(`${r.capped?'>120':r.N} stages · feed on ${r.feed}`,cx,bot+40);
+  for(let i=0;i<n;i++){const y=top+(i+.5)*tray,x=r.st[i]?r.st[i][2]:p.xB;c.fillStyle=mix(css('--d'),css('--a'),(x-p.xB)/(p.xD-p.xB));c.globalAlpha=.55;c.fillRect(cx-cw/2+4,y-Math.min(tray*.3,6),cw-8,Math.min(tray*.6,12));c.globalAlpha=1}}
+
+// ══════════ MODULE 3: PROCESS CONTROL (PID level loop) ══════════
+const PC={A:2,kv0:0.1,Fmax:0.4,H:4,theta:4,dt:0.05};
+const CS={};
+sliders('c_ctl',[
+  {id:'c_sp',label:'Setpoint',min:0.5,max:3.5,step:0.05,val:2,unit:'m'},
+  {id:'c_kc',label:'Gain K_c',min:0,max:1.2,step:0.01,val:0.12,unit:'m³/s per m'},
+  {id:'c_ti',label:'Integral time τ_I (0 = off)',min:0,max:200,step:1,val:50,unit:'s'},
+  {id:'c_td',label:'Derivative time τ_D',min:0,max:10,step:0.5,val:0,unit:'s'},
+  {id:'c_kv',label:'Drain valve opening',min:0.04,max:0.2,step:0.005,val:0.1,fmt:x=>Math.round(x/0.2*100)+'%'}
+],()=>{if(v('c_sp')!==CS.sp)markStep()});
+sliders('c_man',[{id:'c_u',label:'Manual inlet valve',min:0,max:100,step:1,val:35,unit:'%'}],()=>{});
+$('c_man').style.display='none';
+function pidReset(){Object.assign(CS,{t:0,h:2,sp:v('c_sp'),I:0,dhf:0,prevH:2,hist:[],acc:0});CS.h=CS.sp;CS.prevH=CS.h;CS.bias=PC.kv0*Math.sqrt(2);
+  const u0=v('c_kv')*Math.sqrt(CS.h);CS.u=u0;CS.I=u0-CS.bias;CS.buf=new Array(Math.round(PC.theta/PC.dt)).fill(u0);markStep()}
+function markStep(){CS.sp=v('c_sp');Object.assign(CS,{stepT:CS.t,from:CS.h,to:CS.sp,peak:0,lastOut:CS.t,iae:0})}
+function pidStep(){const dt=PC.dt,auto=$('c_mode').value==='auto',Kc=v('c_kc'),tI=v('c_ti'),tD=v('c_td'),kv=v('c_kv');
+  const e=CS.sp-CS.h,dh=(CS.h-CS.prevH)/dt;CS.dhf+=(dh-CS.dhf)*0.15;CS.prevH=CS.h;let u;
+  if(auto){const uu=CS.bias+Kc*e+(tI>0?CS.I:0)-Kc*tD*CS.dhf;u=clamp(uu,0,PC.Fmax);
+    // Anti-windup: only integrate when unsaturated, or when the error pulls the output back into range
+    if(tI>0&&(uu===u||(uu>u&&e<0)||(uu<u&&e>0)))CS.I+=Kc/tI*e*dt}
+  else{u=v('c_u')/100*PC.Fmax;CS.I=u-CS.bias-Kc*e}  // bumpless transfer back to auto
+  CS.u=u;CS.buf.push(u);const Fin=CS.buf.shift(),Fout=kv*Math.sqrt(Math.max(CS.h,0));
+  CS.h=clamp(CS.h+(Fin-Fout)/PC.A*dt,0,PC.H);CS.t+=dt;
+  const d=CS.to-CS.from,band=Math.max(0.05*Math.abs(d),0.02);
+  if(Math.abs(CS.h-CS.sp)>band)CS.lastOut=CS.t;if(Math.abs(d)>1e-6)CS.peak=Math.max(CS.peak,(CS.h-CS.to)*Math.sign(d));CS.iae+=Math.abs(CS.sp-CS.h)*dt;
+  CS.acc+=dt;if(CS.acc>=0.5){CS.acc=0;CS.hist.push([CS.t,CS.h,CS.sp,u/PC.Fmax*100]);if(CS.hist.length>800)CS.hist.shift()}}
+const C_PRESETS={slow:[0.03,150,0],good:[0.12,50,0],osc:[0.9,12,0],ponly:[0.12,0,0]};
+document.querySelectorAll('#c_pre .btn').forEach(b=>b.onclick=()=>{const [k,i,d]=C_PRESETS[b.dataset.p];setSlider('c_kc',k);setSlider('c_ti',i);setSlider('c_td',d);document.querySelectorAll('#c_pre .btn').forEach(x=>x.classList.toggle('on',x===b))});
+$('c_step').onclick=()=>{const n=v('c_sp')+0.8>3.5?v('c_sp')-0.8:v('c_sp')+0.8;setSlider('c_sp',n.toFixed(2));markStep()};
+$('c_dist').onclick=()=>{const o=v('c_kv')<0.15;setSlider('c_kv',o?0.16:0.1);$('c_dist').textContent=o?'Close drain valve':'Open drain valve';CS.from=CS.h;CS.to=CS.sp;CS.stepT=CS.t;CS.lastOut=CS.t;CS.peak=0};
+$('c_reset').onclick=()=>{setSlider('c_kv',0.1);$('c_dist').textContent='Open drain valve';pidReset()};
+$('c_mode').onchange=()=>{const m=$('c_mode').value==='man';$('c_man').style.display=m?'block':'none';if(m)setSlider('c_u',Math.round(CS.u/PC.Fmax*100))};
+function drawControl(){const tNow=CS.t,win=300,x0=Math.max(0,tNow-win),h=CS.hist;
+  plot($('c_p'),{x:[x0,x0+win],y:[0,4],nx:6,ny:4,xl:'Time (s)',yl:'Level (m)  ·  valve % ÷ 25',series:[{pts:h.map(r=>[r[0],r[3]/25]),color:css('--d'),w:1.4},{pts:h.map(r=>[r[0],r[2]]),color:css('--b'),dash:[6,4],w:1.6},{pts:h.map(r=>[r[0],r[1]]),color:css('--c'),w:2.4}]});
+  const S=setup($('c_tank'));if(S){const {c,W,H}=S,tw=Math.min(150,W*.5),tx=W/2-tw/2+10,ty=52,th=H-110,Y=l=>ty+th-(l/PC.H)*th;
+    c.fillStyle='rgba(96,165,250,.55)';c.fillRect(tx,Y(CS.h),tw,ty+th-Y(CS.h));
+    c.strokeStyle=css('--txt');c.lineWidth=2;c.strokeRect(tx,ty,tw,th);
+    c.strokeStyle=css('--b');c.setLineDash([6,4]);c.beginPath();c.moveTo(tx-8,Y(CS.sp));c.lineTo(tx+tw+8,Y(CS.sp));c.stroke();c.setLineDash([]);
+    // inlet pipe + control valve (bow-tie symbol), outlet pipe + drain valve
+    const iy=ty-24;c.strokeStyle=css('--txt');c.beginPath();c.moveTo(6,iy);c.lineTo(tx+30,iy);c.lineTo(tx+30,ty+6);c.stroke();
+    const vx=tx-40;c.fillStyle=mix('#1e293b','#60a5fa',CS.u/PC.Fmax);c.beginPath();c.moveTo(vx-10,iy-8);c.lineTo(vx+10,iy+8);c.lineTo(vx+10,iy-8);c.lineTo(vx-10,iy+8);c.closePath();c.fill();c.stroke();
+    c.beginPath();c.moveTo(vx,iy);c.lineTo(vx,iy-16);c.stroke();c.beginPath();c.arc(vx,iy-22,6,Math.PI,0);c.stroke();
+    const oy=ty+th-10;c.beginPath();c.moveTo(tx+tw,oy);c.lineTo(W-4,oy);c.stroke();const dx=tx+tw+24;c.fillStyle=mix('#1e293b','#60a5fa',v('c_kv')/0.2);c.beginPath();c.moveTo(dx-9,oy-7);c.lineTo(dx+9,oy+7);c.lineTo(dx+9,oy-7);c.lineTo(dx-9,oy+7);c.closePath();c.fill();c.stroke();
+    // instrument bubbles: LT on the tank, LC controller, dashed signal lines
+    const lt=[tx+tw+30,ty+th*.45],lc=[vx,26];c.font="600 10px 'IBM Plex Mono',monospace";c.textAlign='center';
+    c.setLineDash([4,3]);c.strokeStyle=css('--mut');c.beginPath();c.moveTo(tx+tw,lt[1]);c.lineTo(lt[0]-13,lt[1]);c.moveTo(lt[0],lt[1]-13);c.lineTo(lt[0],10);c.lineTo(lc[0]+13,10);c.lineTo(lc[0]+13,lc[1]);c.moveTo(lc[0],lc[1]+13);c.lineTo(lc[0],iy-28);c.stroke();c.setLineDash([]);
+    for(const [p,t] of [[lt,'LT'],[lc,'LC']]){c.fillStyle=css('--panel');c.strokeStyle=css('--txt');c.beginPath();c.arc(p[0],p[1],13,0,7);c.fill();c.stroke();c.fillStyle=css('--txt');c.fillText(t,p[0],p[1]+4)}
+    c.fillStyle=css('--txt');c.font="500 13px 'IBM Plex Mono',monospace";c.fillText(CS.h.toFixed(2)+' m',tx+tw/2,Y(CS.h)-8>ty+14?Y(CS.h)-8:ty+16);
+    c.fillStyle=css('--mut');c.font="11px 'IBM Plex Sans',sans-serif";c.fillText(`inlet ${Math.round(CS.u/PC.Fmax*100)}% · drain ${Math.round(v('c_kv')/0.2*100)}%`,W/2,H-30);c.fillText('t = '+CS.t.toFixed(0)+' s  (sped up ~30×)',W/2,H-12)}
+  const d=CS.to-CS.from,big=Math.abs(d)>0.05,settled=CS.t-CS.lastOut>=30,ov=big?Math.max(0,CS.peak)/Math.abs(d)*100:0,off=CS.sp-CS.h;
+  kpis('c_out',[['Level',CS.h.toFixed(2)+' m','c'],['Error',(off>=0?'+':'')+off.toFixed(3)+' m'],['Overshoot',big?ov.toFixed(0)+'%':'—','b'],['Settling time',settled?(CS.lastOut-CS.stepT).toFixed(0)+' s':(v('c_ti')===0&&h.length>120&&Math.max(...h.slice(-120).map(r=>r[1]))-Math.min(...h.slice(-120).map(r=>r[1]))<0.01&&Math.abs(CS.sp-CS.h)>0.03?'never (offset)':'settling…'),'a'],['Inlet valve',Math.round(CS.u/PC.Fmax*100)+'%','d']]);
+  let msg,warn=false;const recent=h.slice(-120),amp=recent.length?Math.max(...recent.map(r=>r[1]))-Math.min(...recent.map(r=>r[1])):0,offset=v('c_ti')===0&&amp<0.01&&tNow-CS.stepT>40&&Math.abs(off)>0.03;
+  if($('c_mode').value==='man')msg='<b>Manual mode:</b> you are the controller. Try to hold the setpoint by hand, then switch back to automatic and notice there is no bump.';
+  else if(CS.h>=PC.H-0.01||CS.h<=0.01){msg=CS.h>0.01?'<b>The tank is overflowing!</b> The controller cannot pull the level back. Reduce the gain or reset.':'<b>The tank ran dry.</b> Reduce the gain or reset.';warn=true}
+  else if(amp>0.25&&tNow-CS.stepT>60&&!settled){msg='<b>Unstable / sustained oscillation.</b> With a 4 s dead time, the valve keeps reacting to old information and overcorrecting. Lower K<sub>c</sub> or lengthen τ<sub>I</sub>.';warn=true}
+  else if(offset){msg=`<b>Offset:</b> with proportional-only control, the level settles ${Math.abs(off).toFixed(2)} m away from the setpoint. A P controller needs a nonzero error to hold the valve at a new position. Add integral action (τ<sub>I</sub>) to remove it.`;warn=true}
+  else if(settled&&big)msg=`Settled in <b>${(CS.lastOut-CS.stepT).toFixed(0)} s</b> with <b>${ov.toFixed(0)}%</b> overshoot. Integrated absolute error: ${CS.iae.toFixed(1)} m·s. Try beating it by retuning, or hit it with a disturbance.`;
+  else msg='Controller working… step the setpoint or open the drain valve to test it.';
+  $('c_note').className='note'+(warn?' warn':'');$('c_note').innerHTML=msg}
+
+// ══════════ MODULE 4: HEAT EXCHANGER (ε-NTU + LMTD) ══════════
+let hxCounter=true;
+sliders('h_ctl',[
+  {id:'h_Thi',label:'Hot inlet T',min:60,max:200,step:1,val:120,unit:'°C'},
+  {id:'h_mh',label:'Hot flow',min:0.2,max:5,step:0.1,val:1.5,unit:'kg/s'},
+  {id:'h_Tci',label:'Cold water inlet T',min:5,max:50,step:1,val:20,unit:'°C'},
+  {id:'h_mc',label:'Cold water flow',min:0.2,max:5,step:0.1,val:1.2,unit:'kg/s'},
+  {id:'h_U',label:'Overall coefficient U',min:0.2,max:3,step:0.05,val:0.8,unit:'kW/m²·K'},
+  {id:'h_A',label:'Heat-transfer area A',min:1,max:120,step:1,val:20,unit:'m²'}
+],drawHX);
+$('h_fluid').onchange=drawHX;
+document.querySelectorAll('#h_arr .btn').forEach(b=>b.onclick=()=>{hxCounter=b.dataset.c==='1';document.querySelectorAll('#h_arr .btn').forEach(x=>x.classList.toggle('on',x===b));drawHX()});
+const HX={
+  eps(NTU,Cr,counter){if(counter)return Math.abs(1-Cr)<1e-6?NTU/(1+NTU):(1-Math.exp(-NTU*(1-Cr)))/(1-Cr*Math.exp(-NTU*(1-Cr)));return (1-Math.exp(-NTU*(1+Cr)))/(1+Cr)},
+  ntu(eps,Cr,counter){if(counter)return Math.abs(1-Cr)<1e-6?eps/(1-eps):Math.log((eps-1)/(eps*Cr-1))/(Cr-1);const z=1-eps*(1+Cr);return z>0?-Math.log(z)/(1+Cr):Infinity},
+  solve(p){const Ch=p.mh*p.cph,Cc=p.mc*4.18,Cmin=Math.min(Ch,Cc),Cmax=Math.max(Ch,Cc),Cr=Cmin/Cmax,NTU=p.U*p.A/Cmin,e=HX.eps(NTU,Cr,p.counter),Q=e*Cmin*(p.Thi-p.Tci),Tho=p.Thi-Q/Ch,Tco=p.Tci+Q/Cc;
+    const [d1,d2]=p.counter?[p.Thi-Tco,Tho-p.Tci]:[p.Thi-p.Tci,Tho-Tco],lm=Math.abs(d1-d2)<1e-6?d1:(d1-d2)/Math.log(d1/d2);
+    const Aother=HX.ntu(e,Cr,!p.counter)*Cmin/p.U;
+    // Temperature profiles along the area (explicit march; counter-current starts from the known cold outlet)
+    const n=300,dA=p.A/n,ph=[],pc=[];let th=p.Thi,tc=p.counter?Tco:p.Tci;
+    for(let i=0;i<=n;i++){ph.push([i*dA,th]);pc.push([i*dA,tc]);const dq=p.U*dA*(th-tc);th-=dq/Ch;tc+=p.counter?-dq/Cc:dq/Cc}
+    return {Ch,Cc,Cmin,Cr,NTU,e,Q,Tho,Tco,lm,Aother,ph,pc}}};
+function drawHX(){const p={Thi:v('h_Thi'),mh:v('h_mh'),cph:+$('h_fluid').value,Tci:v('h_Tci'),mc:v('h_mc'),U:v('h_U'),A:v('h_A'),counter:hxCounter},r=HX.solve(p);
+  kpis('h_out',[['Heat duty Q',f(r.Q,0)+' kW','b'],['Hot outlet',f(r.Tho,1)+' °C','d'],['Cold outlet',f(r.Tco,1)+' °C','c'],['Effectiveness ε',(r.e*100).toFixed(1)+'%','a'],['NTU',f(r.NTU,2)],['LMTD',f(r.lm,1)+' °C']]);
+  plot($('h_p'),{x:[0,p.A],y:[Math.floor(Math.min(p.Tci,r.Tho)/10)*10,Math.ceil(p.Thi/10)*10+5],xl:'Position along exchanger (cumulative area, m²)',yl:'Temperature (°C)',series:[{pts:r.ph,color:css('--bad')},{pts:r.pc,color:css('--c')}]});
+  hxAnim.r=r;hxAnim.p=p;
+  const check=p.U*p.A*r.lm,cross=p.counter&&r.Tco>r.Tho,other=p.counter?'co-current':'counter-current';
+  let txt=`The exchanger transfers <b>${f(r.Q,0)} kW</b>. Cross-check: \u00A0U·A·ΔT<sub>lm</sub> = ${f(p.U,2)} × ${p.A} × ${f(r.lm,1)} = <b>${f(check,0)} kW</b>, which agrees with ε-NTU. `;
+  txt+=Number.isFinite(r.Aother)?`The same duty in <b>${other}</b> flow would need <b>${f(r.Aother,1)} m²</b> (${p.counter?f(r.Aother/p.A,2)+'× more':f(p.A/r.Aother,2)+'× more than counter-current needs'}). `:`<b>Co-current flow could never reach this duty</b>, at any size: its outlets can only approach each other. `;
+  if(cross)txt+=`<br><b>Temperature cross:</b> the cold water leaves at ${f(r.Tco,1)} °C, hotter than the hot stream's exit at ${f(r.Tho,1)} °C. Only counter-current flow can do this.`;
+  $('h_note').innerHTML=txt}
+const hxAnim={t:0};
+function animHX(dt){const r=hxAnim.r,p=hxAnim.p;if(!r)return;hxAnim.t+=dt;const S=setup($('h_sch'));if(!S)return;const {c,W,H}=S,x0=70,x1=W-70,L=x1-x0,mid=H/2,ro=46,ri=17,t=hxAnim.t;
+  const tmin=Math.min(p.Tci,r.Tho),tmax=p.Thi,col=T=>mix('#60a5fa','#f87171',(T-tmin)/(tmax-tmin||1));
+  const gC=c.createLinearGradient(x0,0,x1,0),gH=c.createLinearGradient(x0,0,x1,0);for(let i=0;i<=10;i++){const k=Math.round(i/10*(r.ph.length-1));gH.addColorStop(i/10,col(r.ph[k][1]));gC.addColorStop(i/10,col(r.pc[k][1]))}
+  c.globalAlpha=.75;c.fillStyle=gC;c.fillRect(x0,mid-ro,L,2*ro);c.fillStyle=gH;c.fillRect(x0,mid-ri,L,2*ri);c.globalAlpha=1;
+  c.strokeStyle=css('--txt');c.lineWidth=2;c.strokeRect(x0,mid-ro,L,2*ro);c.lineWidth=1.5;c.strokeRect(x0,mid-ri,L,2*ri);
+  c.fillStyle='rgba(255,255,255,.75)';for(let i=0;i<14;i++){const z=((i/14)+t*.12)%1;c.beginPath();c.moveTo(x0+z*L+5,mid);c.lineTo(x0+z*L-3,mid-4);c.lineTo(x0+z*L-3,mid+4);c.fill()}
+  for(let i=0;i<14;i++){let z=((i/14)+t*.09)%1;if(p.counter)z=1-z;const xx=x0+z*L,d=p.counter?-1:1;for(const yy of [mid-(ro+ri)/2,mid+(ro+ri)/2]){c.beginPath();c.moveTo(xx+5*d,yy);c.lineTo(xx-3*d,yy-4);c.lineTo(xx-3*d,yy+4);c.fill()}}
+  c.font="600 12px 'IBM Plex Mono',monospace";c.textAlign='right';c.fillStyle='#f87171';c.fillText(p.Thi+'°C',x0-8,mid+4);c.textAlign='left';c.fillText(r.Tho.toFixed(1)+'°C',x1+8,mid+4);
+  c.fillStyle='#60a5fa';const ci=p.counter?[x1+8,'left']:[x0-8,'right'],co=p.counter?[x0-8,'right']:[x1+8,'left'];c.textAlign=ci[1];c.fillText(p.Tci+'°C',ci[0],mid-ro+12);c.textAlign=co[1];c.fillText(r.Tco.toFixed(1)+'°C',co[0],mid-ro+12);
+  c.fillStyle=css('--mut');c.font="11px 'IBM Plex Sans',sans-serif";c.textAlign='center';c.fillText(p.counter?'Counter-current: the streams flow in opposite directions':'Co-current: both streams flow left → right',W/2,H-6)}
+
+// ══════════ MODULE 5: LAB NOTEBOOK (Arrhenius regression) ══════════
+$('k_data').value='# Example data (made up). Replace with your own!\n# temp °C, dissolve time s\n10, 105\n20, 61\n30, 36\n40, 21\n50, 13.5\n60, 8.2';
+function parseData(){return $('k_data').value.split('\n').map(l=>l.replace(/#.*/,'').trim()).filter(Boolean).map(l=>l.split(/[\s,;]+/).map(Number)).filter(r=>r.length>=2&&Number.isFinite(r[0])&&r[1]>0)}
+function linreg(xs,ys){const n=xs.length,mx=xs.reduce((a,b)=>a+b)/n,my=ys.reduce((a,b)=>a+b)/n;let sxy=0,sxx=0,syy=0;for(let i=0;i<n;i++){sxy+=(xs[i]-mx)*(ys[i]-my);sxx+=(xs[i]-mx)**2;syy+=(ys[i]-my)**2}const m=sxy/sxx;return {m,b:my-m*mx,r2:syy?sxy*sxy/(sxx*syy):1}}
+$('k_data').addEventListener('input',drawKinetics);
+$('k_pT').addEventListener('input',()=>{$('k_pT_v').textContent=' '+$('k_pT').value+' °C';drawKinetics()});$('k_pT_v').textContent=' 70 °C';
+function drawKinetics(){const d=parseData();if(d.length<2){kpis('k_out',[['Data points',d.length]]);$('k_note').className='note warn';$('k_note').innerHTML='Enter at least two lines of data (three or more for a meaningful fit).';return}
+  const xs=d.map(r=>1/(r[0]+273.15)),ys=d.map(r=>Math.log(1/r[1])),L=linreg(xs,ys),Ea=-L.m*R_GAS/1000,A=Math.exp(L.b),Tp=v('k_pT'),tp=1/(A*Math.exp(L.m/(Tp+273.15)));
+  kpis('k_out',[['Activation energy',f(Ea,1)+' <small style="display:inline;font-size:12px">kJ/mol</small>','b'],['Fit quality R²',f(L.r2,4),L.r2>0.95?'a':'d'],['Data points',d.length],['Predicted at '+Tp+' °C',f(tp,1)+' s','d']]);
+  const X=xs.map(x=>x*1000),xlo=Math.min(...X),xhi=Math.max(...X),pad=(xhi-xlo)*0.1||0.1,ylo=Math.min(...ys),yhi=Math.max(...ys),pady=(yhi-ylo)*0.15||0.5;
+  plot($('k_p1'),{x:[xlo-pad,xhi+pad],y:[ylo-pady,yhi+pady],xl:'1000 / T  (K⁻¹)',yl:'ln k   (k = 1/time)',series:[{pts:[[xlo-pad,L.m*(xlo-pad)/1000+L.b],[xhi+pad,L.m*(xhi+pad)/1000+L.b]],color:css('--a'),dash:[6,4]}],points:d.map((r,i)=>({x:X[i],y:ys[i],color:css('--b')}))});
+  const Ts=d.map(r=>r[0]),tlo=Math.min(0,...Ts,Tp),thi=Math.max(90,...Ts,Tp),curve=[];for(let T=tlo;T<=thi;T+=0.5)curve.push([T,1/(A*Math.exp(L.m/(T+273.15)))]);
+  const tmax=Math.max(...d.map(r=>r[1]),tp)*1.25;
+  plot($('k_p2'),{x:[tlo,thi],y:[0,tmax],xl:'Water temperature (°C)',yl:'Dissolve time (s)',series:[{pts:curve,color:css('--a')}],points:[...d.map(r=>({x:r[0],y:r[1],color:css('--b')})),{x:Tp,y:tp,color:css('--d'),r:6,label:f(tp,1)+' s'}]});
+  const q=L.r2>0.98?'an excellent straight line, so your data follows Arrhenius behavior closely':L.r2>0.9?'a reasonable fit, though some points scatter. More repeats would tighten it':'a poor fit. Check for typos or a bad trial, and repeat measurements';
+  $('k_note').className='note'+(L.r2>0.9?'':' warn');
+  $('k_note').innerHTML=`The slope of the Arrhenius plot is −E<sub>a</sub>/R = ${f(L.m,0)} K, giving <b>E<sub>a</sub> ≈ ${f(Ea,1)} kJ/mol</b>. R² = ${f(L.r2,3)} is ${q}. For scale: many chemical reactions have E<sub>a</sub> of 40–100 kJ/mol, while processes limited by diffusion are often below 20. Rule of thumb from your fit: every +10 °C makes it about <b>${f(Math.exp(-L.m*(1/293.15-1/303.15)),2)}×</b> faster near room temperature.`}
+
+// ══════════ NAVIGATION & MAIN LOOP ══════════
+const DRAW={reactor:drawReactor,distill:drawDistill,control:drawControl,hx:drawHX,kinetics:drawKinetics};
+let tab='reactor';
+function show(t){if(!DRAW[t])t='reactor';tab=t;document.querySelectorAll('.mod').forEach(m=>m.classList.toggle('on',m.id===t));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));if(location.hash!=='#'+t)history.replaceState(null,'','#'+t);requestAnimationFrame(()=>DRAW[t]())}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>show(b.dataset.t));
+addEventListener('hashchange',()=>show(location.hash.slice(1)));
+addEventListener('resize',()=>DRAW[tab]());
+pidReset();
+let last=performance.now();
+function loop(now){const dt=Math.min(0.05,(now-last)/1000);last=now;
+  if(tab==='reactor')animReactor(dt);
+  else if(tab==='hx')animHX(dt);
+  else if(tab==='control'){for(let i=0;i<10;i++)pidStep();drawControl()}  // 10 × 0.05 s per frame ≈ 30× real time at 60 fps
+  requestAnimationFrame(loop)}
+show(location.hash.slice(1)||'reactor');requestAnimationFrame(loop);
+document.fonts&&document.fonts.ready.then(()=>DRAW[tab]());  // re-draw canvases once web fonts arrive
+</script>
+</body>
+</html>
