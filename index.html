@@ -68,6 +68,16 @@ nav button.on{box-shadow:0 0 22px -6px var(--a)}
 .eli5 h4{font-size:13px;letter-spacing:.06em;color:var(--a);margin-bottom:6px;text-transform:uppercase}
 .eli5 p{color:#d3e2ec;font-size:14.5px;margin:5px 0}.eli5 b{color:#fff}
 #k_run{background:var(--a);color:#04201c;border-color:var(--a);font-weight:600}
+.mis{list-style:none;padding:0;margin-top:4px}.mis li{padding:9px 11px;border:1px solid var(--line);border-radius:8px;margin:7px 0;font-size:14px;color:#c8d4df;transition:all .3s}
+.mis li.done{border-color:rgba(74,222,128,.55);background:rgba(74,222,128,.08);color:#fff}
+.qa{display:block;width:100%;text-align:left;margin:6px 0;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 11px;cursor:pointer;font:14px 'IBM Plex Sans',sans-serif}
+.qa:hover{border-color:#3d5a78}.qa.right{border-color:var(--ok);background:rgba(74,222,128,.13)}.qa.wrong{border-color:var(--bad);background:rgba(248,113,113,.1)}
+.quiz p{font-size:14px;margin-top:6px}.qe{font-size:13.5px;color:#b7c3d1;margin:2px 0 12px;min-height:2px}
+.badges{font:600 14px 'IBM Plex Mono',monospace;color:var(--b);border:1px solid rgba(245,158,11,.4);border-radius:999px;padding:6px 12px;background:rgba(245,158,11,.08)}
+#fx{position:fixed;inset:0;z-index:50;pointer-events:none;width:100%;height:100%}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:#0f2a24;border:1px solid var(--a);color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;z-index:60;transition:transform .35s;box-shadow:0 10px 40px -10px rgba(45,212,191,.6);max-width:90vw}
+#toast.on{transform:translateX(-50%) translateY(0)}
+.optbtn{width:100%;margin-top:6px;background:linear-gradient(90deg,#2dd4bf,#60a5fa);color:#04201c;border:0;font-weight:700;padding:11px}
 footer{border-top:1px solid var(--line);padding:18px 28px;color:var(--mut);font-size:13px;text-align:center}
 .katex{font-size:1.02em}
 @media(max-width:980px){.grid,.plots,.learn{grid-template-columns:1fr}header,main{padding-left:16px;padding-right:16px}}
@@ -75,6 +85,7 @@ footer{border-top:1px solid var(--line);padding:18px 28px;color:var(--mut);font-
 </head>
 <body>
 <canvas id="bg"></canvas>
+<canvas id="fx"></canvas><div id="toast"></div>
 <header>
   <div class="brand">
     <svg width="38" height="38" viewBox="0 0 38 38" aria-hidden="true"><path d="M14 4h10M16 4v10L6 31a3 3 0 0 0 2.6 4.5h20.8A3 3 0 0 0 32 31L22 14V4" fill="none" stroke="#2dd4bf" stroke-width="2.2" stroke-linejoin="round"/><path d="M10.5 24h17l4 7.2a1.6 1.6 0 0 1-1.4 2.4H8a1.6 1.6 0 0 1-1.4-2.4z" fill="#2dd4bf" opacity=".35"/><circle cx="17" cy="28" r="1.6" fill="#f59e0b"/><circle cx="22" cy="30" r="1.1" fill="#f59e0b"/></svg>
@@ -85,8 +96,10 @@ footer{border-top:1px solid var(--line);padding:18px 28px;color:var(--mut);font-
     <button data-t="distill">🧪 Distillation</button>
     <button data-t="control">🎛️ Process Control</button>
     <button data-t="hx">🔥 Heat Exchanger</button>
+    <button data-t="plant">🏭 Plant Designer</button>
     <button data-t="kinetics">📓 Lab Notebook</button>
   </nav>
+  <div class="badges" id="badges" title="Missions and quizzes completed">🏆 0</div>
 </header>
 
 <main>
@@ -112,6 +125,7 @@ footer{border-top:1px solid var(--line);padding:18px 28px;color:var(--mut);font-
       <div class="note" id="r_note"></div>
     </div>
   </div>
+  <div class="learn"><div class="card"><h4>🏆 Missions</h4><ul class="mis" id="reactor_mis"></ul></div><div class="card"><h4>🧠 Test yourself</h4><div class="quiz" id="reactor_quiz"></div></div></div>
   <div class="learn">
     <div class="card"><h4>The engineering (for the curious)</h4>
       <p>The rate constant follows the <b>Arrhenius equation</b>, so temperature has an exponential effect: \(k = k_{350}\,\exp\!\left[-\tfrac{E_a}{R}\left(\tfrac{1}{T}-\tfrac{1}{350\,\text{K}}\right)\right]\).</p>
@@ -146,6 +160,7 @@ footer{border-top:1px solid var(--line);padding:18px 28px;color:var(--mut);font-
       <div class="note" id="d_note"></div>
     </div>
   </div>
+  <div class="learn"><div class="card"><h4>🏆 Missions</h4><ul class="mis" id="distill_mis"></ul></div><div class="card"><h4>🧠 Test yourself</h4><div class="quiz" id="distill_quiz"></div></div></div>
   <div class="learn">
     <div class="card"><h4>The engineering (for the curious)</h4>
       <p>With constant relative volatility \(\alpha\), equilibrium is \(y = \dfrac{\alpha x}{1+(\alpha-1)x}\). Above the feed, the rectifying line is \(y = \dfrac{R}{R+1}x + \dfrac{x_D}{R+1}\). The feed condition \(q\) sets the q-line \(y = \dfrac{q}{q-1}x - \dfrac{x_F}{q-1}\).</p>
@@ -183,6 +198,7 @@ footer{border-top:1px solid var(--line);padding:18px 28px;color:var(--mut);font-
       <div class="note" id="c_note"></div>
     </div>
   </div>
+  <div class="learn"><div class="card"><h4>🏆 Missions</h4><ul class="mis" id="control_mis"></ul></div><div class="card"><h4>🧠 Test yourself</h4><div class="quiz" id="control_quiz"></div></div></div>
   <div class="learn">
     <div class="card"><h4>The engineering (for the curious)</h4>
       <p>Tank mass balance: \(A\dfrac{dh}{dt} = F_{in}(t-\theta) - k_v\sqrt{h}\), where \(\theta\) is the pipe's dead time. The controller output is
@@ -217,6 +233,7 @@ footer{border-top:1px solid var(--line);padding:18px 28px;color:var(--mut);font-
       <div class="note" id="h_note"></div>
     </div>
   </div>
+  <div class="learn"><div class="card"><h4>🏆 Missions</h4><ul class="mis" id="hx_mis"></ul></div><div class="card"><h4>🧠 Test yourself</h4><div class="quiz" id="hx_quiz"></div></div></div>
   <div class="learn">
     <div class="card"><h4>The engineering (for the curious)</h4>
       <p>Heat duty \(Q = U A\,\Delta T_{lm}\) with the log-mean temperature difference \(\Delta T_{lm} = \dfrac{\Delta T_1-\Delta T_2}{\ln(\Delta T_1/\Delta T_2)}\). For rating an existing exchanger, the <b>ε-NTU method</b> avoids trial and error: \(NTU = \dfrac{UA}{C_{min}}\), and for counter-current
@@ -226,6 +243,41 @@ footer{border-top:1px solid var(--line);padding:18px 28px;color:var(--mut);font-
       <li>Make the area huge in co-current mode. The outlets meet in the middle and can never cross.</li>
       <li>Do the same in counter-current mode. The cold outlet can end up <i>hotter</i> than the hot outlet (a "temperature cross").</li>
       <li>Compare how much area each arrangement needs for the same duty.</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ═══════════════ PLANT DESIGNER ═══════════════ -->
+<section class="mod" id="plant">
+  <div class="intro"><h2>Plant Designer: Make It Profitable</h2><p>Connect a reactor and a separator into a real process with a recycle loop, then run it like a plant manager. Every choice trades more product against more cost.</p></div>
+  <div class="eli5"><h4>🧠 In plain English</h4>
+  <p>Real chemical plants are <b>chains</b> of equipment. Here, fresh ingredient <b style="color:#60a5fa">A</b> goes into a reactor and becomes product <b style="color:#f59e0b">B</b>, which you sell. Some ingredient never reacts, so a separator pulls it out and <b>recycles</b> it back to the start instead of throwing it away.</p>
+  <p>The twist: when it's <b>too hot</b>, a second unwanted reaction makes <b style="color:#94a3b8">waste C</b> (gray), and heating costs money. A <b>bigger reactor</b> makes more product but costs more to build. <b>Recycling more</b> wastes less ingredient but the separator uses more energy.</p>
+  <p><b>Your job:</b> make the most money per hour. Then press <b>🤖</b> to see if a computer can beat you.</p></div>
+  <div class="grid">
+    <div class="card"><h3>Design choices</h3><div id="p_ctl"></div>
+      <p style="font-size:13px;color:var(--mut);margin:4px 0 8px">Fresh ingredient: 10 mol/min · A costs $0.25/mol · B sells for $0.90/mol · waste C costs $0.30/mol to dispose of</p>
+      <button class="btn optbtn" id="p_opt">🤖 Find the most profitable design</button></div>
+    <div>
+      <div class="out" id="p_out"></div>
+      <div class="card" style="margin-bottom:14px"><canvas id="p_flow" style="height:310px"></canvas></div>
+      <div class="plots">
+        <div class="card"><div class="leg"><span><i style="background:var(--ok)"></i>Money in</span><span><i style="background:var(--bad)"></i>Money out</span></div><canvas class="p" id="p_bars"></canvas></div>
+        <div class="card"><div class="leg"><span><i style="background:var(--a)"></i>Profit vs. temperature (your other settings fixed)</span></div><canvas class="p" id="p_curve"></canvas></div>
+      </div>
+      <div class="note" id="p_note"></div>
+    </div>
+  </div>
+  <div class="learn"><div class="card"><h4>🏆 Missions</h4><ul class="mis" id="plant_mis"></ul></div><div class="card"><h4>🧠 Test yourself</h4><div class="quiz" id="plant_quiz"></div></div></div>
+  <div class="learn">
+    <div class="card"><h4>The engineering (for the curious)</h4>
+      <p>Two parallel first-order reactions in a CSTR: \(A\to B\) (\(E_{a}=65\) kJ/mol) and \(A\to C\) (\(E_{a}=120\) kJ/mol). Because the waste reaction has the higher activation energy, it speeds up faster with temperature, so <b>selectivity</b> \(S = k_1/(k_1+k_2)\) falls as T rises.</p>
+      <p style="margin-top:8px">With recycle fraction \(r\), the mole balance at the mixer gives \(F_{in} = F_0 + r\,F_{in}(1-X)\), and conversion per pass depends on \(F_{in}\) through \(\tau = V C_{A0}/F_{in}\). Combining them gives a quadratic, solved exactly: \((1-r)F_{in}^2 + (a-F_0)F_{in} - aF_0 = 0\) with \(a = (k_1+k_2)VC_{A0}\).</p>
+    </div>
+    <div class="card"><h4>Try this</h4><ul>
+      <li>Set recycle to 0%. How much money is going out of the purge as unused ingredient?</li>
+      <li>Crank the temperature to 420 K. Watch the gray waste take over.</li>
+      <li>The profit curve has a peak. Can you find it by hand before using 🤖?</li>
     </ul></div>
   </div>
 </section>
@@ -262,6 +314,7 @@ footer{border-top:1px solid var(--line);padding:18px 28px;color:var(--mut);font-
       <div class="note" id="k_note"></div>
     </div>
   </div>
+  <div class="learn"><div class="card"><h4>🏆 Missions</h4><ul class="mis" id="kinetics_mis"></ul></div><div class="card"><h4>🧠 Test yourself</h4><div class="quiz" id="kinetics_quiz"></div></div></div>
   <div class="learn">
     <div class="card"><h4>The science (for the curious)</h4>
       <p>Taking the log of the Arrhenius equation turns a curve into a straight line: \(\ln k = \ln A - \dfrac{E_a}{R}\cdot\dfrac{1}{T}\). So plotting \(\ln k\) against \(1/T\) (in kelvin) gives a slope of \(-E_a/R\). Least-squares regression finds the best-fit line, and \(R^2\) tells you how well your data follows Arrhenius behavior.</p>
@@ -471,10 +524,11 @@ function pidStep(){const dt=PC.dt,auto=$('c_mode').value==='auto',Kc=v('c_kc'),t
   const d=CS.to-CS.from,band=Math.max(0.05*Math.abs(d),0.02);
   if(Math.abs(CS.h-CS.sp)>band)CS.lastOut=CS.t;if(Math.abs(d)>1e-6)CS.peak=Math.max(CS.peak,(CS.h-CS.to)*Math.sign(d));CS.iae+=Math.abs(CS.sp-CS.h)*dt;
   CS.acc+=dt;if(CS.acc>=0.5){CS.acc=0;CS.hist.push([CS.t,CS.h,CS.sp,u/PC.Fmax*100]);if(CS.hist.length>800)CS.hist.shift()}}
+let CM={};
 const C_PRESETS={slow:[0.03,150,0],good:[0.12,50,0],osc:[0.9,12,0],ponly:[0.12,0,0]};
 document.querySelectorAll('#c_pre .btn').forEach(b=>b.onclick=()=>{const [k,i,d]=C_PRESETS[b.dataset.p];setSlider('c_kc',k);setSlider('c_ti',i);setSlider('c_td',d);document.querySelectorAll('#c_pre .btn').forEach(x=>x.classList.toggle('on',x===b))});
 $('c_step').onclick=()=>{const n=v('c_sp')+0.8>3.5?v('c_sp')-0.8:v('c_sp')+0.8;setSlider('c_sp',n.toFixed(2));markStep()};
-$('c_dist').onclick=()=>{const o=v('c_kv')<0.15;setSlider('c_kv',o?0.16:0.1);$('c_dist').textContent=o?'Close drain valve':'Open drain valve';CS.from=CS.h;CS.to=CS.sp;CS.stepT=CS.t;CS.lastOut=CS.t;CS.peak=0};
+$('c_dist').onclick=()=>{const o=v('c_kv')<0.15;setSlider('c_kv',o?0.16:0.1);$('c_dist').textContent=o?'Close drain valve':'Open drain valve';CS.from=CS.h;CS.to=CS.sp;CS.stepT=CS.t;CS.lastOut=CS.t;CS.peak=0;CS.distT=CS.t};
 $('c_reset').onclick=()=>{setSlider('c_kv',0.1);$('c_dist').textContent='Open drain valve';pidReset()};
 $('c_mode').onchange=()=>{const m=$('c_mode').value==='man';$('c_man').style.display=m?'block':'none';if(m)setSlider('c_u',Math.round(CS.u/PC.Fmax*100))};
 function drawControl(){const tNow=CS.t,win=300,x0=Math.max(0,tNow-win),h=CS.hist;
@@ -509,6 +563,7 @@ function drawControl(){const tNow=CS.t,win=300,x0=Math.max(0,tNow-win),h=CS.hist
   const d=CS.to-CS.from,big=Math.abs(d)>0.05,settled=CS.t-CS.lastOut>=30,ov=big?Math.max(0,CS.peak)/Math.abs(d)*100:0,off=CS.sp-CS.h;
   kpis('c_out',[['Level',CS.h.toFixed(2)+' m','c'],['Off target by',(off>=0?'+':'')+off.toFixed(3)+' m'],['Overshoot',big?ov.toFixed(0)+'%':'—','b'],['Time to settle',settled?(CS.lastOut-CS.stepT).toFixed(0)+' s':(v('c_ti')===0&&h.length>120&&Math.max(...h.slice(-120).map(r=>r[1]))-Math.min(...h.slice(-120).map(r=>r[1]))<0.01&&Math.abs(CS.sp-CS.h)>0.03?'never (offset)':'settling…'),'a'],['Inlet valve',Math.round(CS.u/PC.Fmax*100)+'%','d']]);
   let msg,warn=false;const recent=h.slice(-120),amp=recent.length?Math.max(...recent.map(r=>r[1]))-Math.min(...recent.map(r=>r[1])):0,offset=v('c_ti')===0&&amp<0.01&&tNow-CS.stepT>40&&Math.abs(off)>0.03;
+  CM={settled,big,ov,st:CS.lastOut-CS.stepT,unstable:amp>0.25&&tNow-CS.stepT>60&&!settled,dist:CS.distT===CS.stepT,auto:$('c_mode').value==='auto'};
   if($('c_mode').value==='man')msg='<b>Manual mode:</b> you are the controller. Try to hold the setpoint by hand, then switch back to automatic and notice there is no bump.';
   else if(CS.h>=PC.H-0.01||CS.h<=0.01){msg=CS.h>0.01?'<b>The tank is overflowing!</b> The controller cannot pull the level back. Reduce the gain or reset.':'<b>The tank ran dry.</b> Reduce the gain or reset.';warn=true}
   else if(amp>0.25&&tNow-CS.stepT>60&&!settled){msg='<b>Unstable / sustained oscillation.</b> With a 4 s dead time, the valve keeps reacting to old information and overcorrecting. Lower K<sub>c</sub> or lengthen τ<sub>I</sub>.';warn=true}
@@ -567,11 +622,12 @@ function animHX(dt){const r=hxAnim.r,p=hxAnim.p;if(!r)return;hxAnim.t+=dt;const 
 $('k_data').value='# Example data (made up). Replace with your own!\n# temp °C, dissolve time s\n10, 105\n20, 61\n30, 36\n40, 21\n50, 13.5\n60, 8.2';
 function parseData(){return $('k_data').value.split('\n').map(l=>l.replace(/#.*/,'').trim()).filter(Boolean).map(l=>l.split(/[\s,;]+/).map(Number)).filter(r=>r.length>=2&&Number.isFinite(r[0])&&r[1]>0)}
 function linreg(xs,ys){const n=xs.length,mx=xs.reduce((a,b)=>a+b)/n,my=ys.reduce((a,b)=>a+b)/n;let sxy=0,sxx=0,syy=0;for(let i=0;i<n;i++){sxy+=(xs[i]-mx)*(ys[i]-my);sxx+=(xs[i]-mx)**2;syy+=(ys[i]-my)**2}const m=sxy/sxx;return {m,b:my-m*mx,r2:syy?sxy*sxy/(sxx*syy):1}}
-$('k_data').addEventListener('input',drawKinetics);
+let KM={edited:false,r2:0};
+$('k_data').addEventListener('input',()=>{KM.edited=true;drawKinetics()});
 $('k_pT').addEventListener('input',()=>{$('k_pT_v').textContent=' '+$('k_pT').value+' °C';drawKinetics()});$('k_pT_v').textContent=' 70 °C';
 let KF=null;const KS={run:false,st:0,dur:0,T:70,bub:[],done:false,t:0};
 function drawKinetics(){const d=parseData();if(d.length<2){KF=null;kpis('k_out',[['Data points',d.length]]);$('k_note').className='note warn';$('k_note').innerHTML='Enter at least two lines of data (three or more for a meaningful fit).';return}
-  const xs=d.map(r=>1/(r[0]+273.15)),ys=d.map(r=>Math.log(1/r[1])),L=linreg(xs,ys),Ea=-L.m*R_GAS/1000,A=Math.exp(L.b),Tp=v('k_pT'),tp=1/(A*Math.exp(L.m/(Tp+273.15)));KF={tp,Tp};
+  const xs=d.map(r=>1/(r[0]+273.15)),ys=d.map(r=>Math.log(1/r[1])),L=linreg(xs,ys),Ea=-L.m*R_GAS/1000,A=Math.exp(L.b),Tp=v('k_pT'),tp=1/(A*Math.exp(L.m/(Tp+273.15)));KF={tp,Tp};KM.r2=L.r2;
   kpis('k_out',[['Activation energy',f(Ea,1)+' <small style="display:inline;font-size:12px">kJ/mol</small>','b'],['Fit quality R²',f(L.r2,4),L.r2>0.95?'a':'d'],['Data points',d.length],['Predicted at '+Tp+' °C',f(tp,1)+' s','d']]);
   const X=xs.map(x=>x*1000),xlo=Math.min(...X),xhi=Math.max(...X),pad=(xhi-xlo)*0.1||0.1,ylo=Math.min(...ys),yhi=Math.max(...ys),pady=(yhi-ylo)*0.15||0.5;
   plot($('k_p1'),{x:[xlo-pad,xhi+pad],y:[ylo-pady,yhi+pady],xl:'1000 / T  (K⁻¹)',yl:'ln k   (k = 1/time)',series:[{pts:[[xlo-pad,L.m*(xlo-pad)/1000+L.b],[xhi+pad,L.m*(xhi+pad)/1000+L.b]],color:css('--a'),dash:[6,4]}],points:d.map((r,i)=>({x:X[i],y:ys[i],color:css('--b')}))});
@@ -608,13 +664,141 @@ function animKinetics(dt){KS.t+=dt;const S=setup($('k_sim'));if(!S)return;const 
   if(KS.done){c.fillStyle=css('--a');c.font="600 13px 'IBM Plex Sans',sans-serif";c.fillText('✅ Dissolved!',bx+bw+22,H/2+20);c.fillStyle=css('--mut');c.font="12px 'IBM Plex Sans',sans-serif";c.fillText('time predicted by your fit',bx+bw+22,H/2+36)}
   else if(!live){c.textAlign='left';c.fillText('Press ▶ to drop it in',bx+bw+22,H/2+20)}}
 
+// ══════════ MODULE 6: PLANT DESIGNER (reactor + separator + recycle + economics) ══════════
+const PLC={F0:10,CA0:2,pB:0.9,pA:0.25,pC:0.3};
+function plantSolve(T,V,r){const k1=0.1*Math.exp(-65000/R_GAS*(1/T-1/350)),k2=0.004*Math.exp(-120000/R_GAS*(1/T-1/350)),kt=k1+k2,S=k1/kt,a=kt*V*PLC.CA0,F0=PLC.F0;
+  // Recycle loop solved exactly: (1-r)F² + (a-F0)F - aF0 = 0
+  const A2=1-r,Fin=A2<1e-9?F0*a/(a-F0):(-(a-F0)+Math.sqrt((a-F0)**2+4*A2*F0*a))/(2*A2),X=a/(a+Fin);
+  const B=Fin*X*S,C=Fin*X*(1-S),Arec=r*Fin*(1-X),Alost=(1-r)*Fin*(1-X),h=60;
+  const rev=B*h*PLC.pB,feed=F0*h*PLC.pA,waste=C*h*PLC.pC,heat=Fin*h*(T-300)*0.0012,sep=h*(0.015*Fin+0.03*Fin*(1-X)/Math.sqrt(1-r+0.01)),cap=1.4*Math.pow(V,0.6);
+  return {T,V,r,k1,k2,S,X,Fin,B,C,Arec,Alost,rev,feed,waste,heat,sep,cap,profit:rev-feed-waste-heat-sep-cap,yld:B/F0}}
+const PL={o:null,auto:false,tw:null,t:0,parts:{}};let PLbest=null;
+function plantOptimum(){let b=null;for(let T=320;T<=420;T+=2)for(let V=100;V<=3000;V+=25)for(let r=0;r<=0.99001;r+=0.01){const o=plantSolve(T,V,r);if(!b||o.profit>b.profit)b=o}
+  for(let it=0;it<3;it++){const c=b;for(let T=c.T-2;T<=c.T+2;T+=1)for(let V=c.V-25;V<=c.V+25;V+=5)for(let r=Math.max(0,c.r-.01);r<=Math.min(.99,c.r+.01)+1e-9;r+=.005){const o=plantSolve(T,V,+r.toFixed(3));if(o.profit>b.profit)b=o}}return b}
+sliders('p_ctl',[
+  {id:'p_T',label:'Reactor temperature',min:320,max:420,step:1,val:330,unit:'K'},
+  {id:'p_V',label:'Reactor size',min:100,max:3000,step:5,val:300,unit:'L'},
+  {id:'p_r',label:'Recycle: unused ingredient recovered',min:0,max:0.99,step:0.005,val:0.3,fmt:x=>(x*100).toFixed(1)+'%'}
+],()=>{PL.auto=false;PL.tw=null;drawPlant()});
+$('p_opt').onclick=()=>{if(!PLbest)PLbest=plantOptimum();PL.auto=true;PL.tw={a:{T:v('p_T'),V:v('p_V'),r:v('p_r')},b:PLbest,t:0}};
+const money=x=>(x<0?'−$':'$')+Math.abs(x).toFixed(0);
+function drawPlant(){if(!PLbest)PLbest=plantOptimum();const o=plantSolve(v('p_T'),v('p_V'),v('p_r'));PL.o=o;
+  kpis('p_out',[['Profit per hour',money(o.profit),o.profit>=0?'a':'d'],['Product B made',f(o.B*60,0)+' mol/h','b'],['Ingredient → product',(o.yld*100).toFixed(1)+'%'],['Good vs. waste (selectivity)',(o.S*100).toFixed(1)+'%','c'],['Recycle flow',f(o.Arec,2)+' mol/min']]);
+  // money bars
+  const S2=setup($('p_bars'));if(S2){const {c,W,H}=S2,rows=[['Sales of B',o.rev,1],['Buying ingredient A',o.feed,0],['Heating',o.heat,0],['Separation energy',o.sep,0],['Reactor (build cost)',o.cap,0],['Waste disposal',o.waste,0],['PROFIT',o.profit,2]],mx=Math.max(...rows.map(r=>Math.abs(r[1]))),lx=150,bw=W-lx-70,rh=(H-20)/rows.length;
+    rows.forEach(([n,val,k],i)=>{const y=10+i*rh,w=Math.abs(val)/mx*bw;c.fillStyle=css('--mut');c.font=(k===2?'700 ':'')+"12px 'IBM Plex Sans',sans-serif";c.textAlign='right';c.fillText(n,lx-10,y+rh/2+4);
+      c.fillStyle=k===1?'#4ade80':k===2?(val>=0?css('--a'):'#f87171'):'rgba(248,113,113,.8)';c.beginPath();c.roundRect(lx,y+rh*.18,Math.max(2,w),rh*.64,4);c.fill();
+      c.fillStyle=css('--txt');c.textAlign='left';c.font="12px 'IBM Plex Mono',monospace";c.fillText((k===0?'−':'')+money(val).replace('−',''),lx+w+6,y+rh/2+4)})}
+  // profit vs temperature at the current size & recycle
+  const pts=[];let pk=null;for(let T=320;T<=420;T+=1){const q=plantSolve(T,o.V,o.r);pts.push([T,q.profit]);if(!pk||q.profit>pk[1])pk=[T,q.profit]}
+  const lo=Math.min(...pts.map(p=>p[1]),0),hi=Math.max(...pts.map(p=>p[1]),PLbest.profit);
+  plot($('p_curve'),{x:[320,420],y:[Math.floor(lo/50)*50,Math.ceil(hi/50)*50+20],xl:'Reactor temperature (K)',yl:'Profit ($ per hour)',series:[{pts:[[320,0],[420,0]],color:css('--mut'),w:1,dash:[4,4]},{pts,color:css('--a')}],points:[{x:pk[0],y:pk[1],color:css('--b'),r:4,label:'peak'},{x:o.T,y:o.profit,color:css('--d'),r:6,label:'you',align:'right'}]});
+  const costs=[['buying ingredient',o.feed],['heating',o.heat],['separation',o.sep],['the reactor',o.cap],['waste disposal',o.waste]].sort((a,b)=>b[1]-a[1]),gap=PLbest.profit-o.profit;
+  let tip=o.S<0.93?'Lots of <b>waste C</b> is forming because it is very hot. Try a lower temperature.':o.Alost>0.8?`You are throwing away ${f(o.Alost*60,0)} mol/h of unreacted ingredient in the purge. Try recycling more of it.`:o.Arec>3?'A huge amount is going round the recycle loop and the separator is working hard. A slightly hotter or bigger reactor would react more per pass.':'Fine-tune all three sliders. The best design balances them.';
+  $('p_note').className='note'+(o.profit<0?' warn':'');
+  $('p_note').innerHTML=`Your plant earns <b>${money(o.profit)} per hour</b>${gap>1?` (the best possible is about ${money(PLbest.profit)}/h)`:', which is <b>as good as the optimizer</b> 🎉'}. Its biggest cost after the ingredient itself is <b>${costs.find(c=>c[0]!=='buying ingredient')[0]}</b>. ${gap>1?tip:''}`}
+const PATHS={feed:[[20,205],[150,205]],mix:[[150,205],[232,205]],rout:[[328,232],[400,232],[400,205],[470,205]],rec:[[490,62],[490,30],[150,30],[150,193]],purge:[[490,30],[640,30],[640,58]],prod:[[490,268],[490,290],[690,290],[690,262]]};
+function plen(P){let L=0;for(let i=1;i<P.length;i++)L+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);return L}
+function pAt(P,s){let L=plen(P)*s;for(let i=1;i<P.length;i++){const d=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);if(L<=d){const u=L/d;return [P[i-1][0]+(P[i][0]-P[i-1][0])*u,P[i-1][1]+(P[i][1]-P[i-1][1])*u]}L-=d}return P[P.length-1]}
+function animPlant(dt){const o=PL.o;if(!o)return;PL.t+=dt;const t=PL.t;
+  if(PL.tw){PL.tw.t=Math.min(1,PL.tw.t+dt/1.4);const e=1-Math.pow(1-PL.tw.t,3),a=PL.tw.a,b=PL.tw.b;setSlider('p_T',Math.round(a.T+(b.T-a.T)*e));setSlider('p_V',Math.round((a.V+(b.V-a.V)*e)/5)*5);setSlider('p_r',+(a.r+(b.r-a.r)*e).toFixed(3));drawPlant();if(PL.tw.t>=1){PL.tw=null;setSlider('p_V',b.V);setSlider('p_r',b.r);drawPlant();toast('🤖 Optimizer: best design found, '+money(b.profit)+' per hour')}}
+  const S=setup($('p_flow'));if(!S)return;const {c,W,H}=S,sx=W/760,sy=H/310,X=x=>x*sx,Y=y=>y*sy,A=css('--c'),B=css('--b'),Cc='#94a3b8',heat=clamp((o.T-320)/100,0,1);
+  const streams={feed:[PLC.F0,1,0,0],mix:[o.Fin,1,0,0],rout:[o.Fin,1-o.X,o.X*o.S,o.X*(1-o.S)],rec:[o.Arec,1,0,0],purge:[o.Alost,1,0,0],prod:[o.B+o.C,0,o.S,1-o.S]};
+  // pipes (width ∝ flow) with molecules riding along, colored by stream composition
+  for(const [k,P] of Object.entries(PATHS)){const [F,fa,fb]=streams[k],w=(1.5+Math.min(F,25)*.55)*Math.min(sx,1.2);
+    c.strokeStyle='#22303f';c.lineWidth=w+4;c.lineJoin='round';c.beginPath();P.forEach(([x,y],i)=>i?c.lineTo(X(x),Y(y)):c.moveTo(X(x),Y(y)));c.stroke();
+    c.strokeStyle=k==='rec'?'rgba(96,165,250,.35)':k==='purge'?'rgba(148,163,184,.3)':'rgba(255,255,255,.12)';c.lineWidth=w;c.stroke();
+    if(F<0.005)continue;const n=Math.round(clamp(3+F*1.4,3,34)),L=plen(P);if(!PL.parts[k]||PL.parts[k].length!==n)PL.parts[k]=Array.from({length:n},(_,i)=>({ph:i/n,u:Math.random()}));
+    for(const q of PL.parts[k]){const [x,y]=pAt(P,(q.ph+t*60/L)%1);c.fillStyle=q.u<fa?A:q.u<fa+fb?B:Cc;c.beginPath();c.arc(X(x),Y(y),2.6,0,7);c.fill()}}
+  // feed drum
+  c.strokeStyle=css('--txt');c.lineWidth=2;c.fillStyle='rgba(96,165,250,.25)';c.beginPath();c.roundRect(X(4),Y(178),X(30),Y(56),6);c.fill();c.stroke();
+  // mixer
+  c.fillStyle=css('--panel');c.beginPath();c.arc(X(150),Y(205),9,0,7);c.fill();c.stroke();
+  // reactor with heating jacket glow + stirrer
+  c.save();c.shadowColor=`rgba(248,113,113,${.2+.7*heat})`;c.shadowBlur=6+26*heat;c.strokeStyle=mix('#7f1d1d','#fb923c',heat);c.lineWidth=5;c.strokeRect(X(226),Y(166),X(108),Y(82));c.restore();
+  c.fillStyle=mix(A,B,o.X);c.globalAlpha=.4;c.fillRect(X(232),Y(170),X(96),Y(74));c.globalAlpha=1;c.strokeStyle=css('--txt');c.lineWidth=2;c.strokeRect(X(232),Y(158),X(96),Y(92));
+  const ang=t*6*(.5+heat);c.beginPath();c.moveTo(X(280),Y(146));c.lineTo(X(280),Y(228));c.stroke();c.lineWidth=4;c.beginPath();c.moveTo(X(280)-20*Math.cos(ang),Y(228));c.lineTo(X(280)+20*Math.cos(ang),Y(228));c.stroke();
+  // separator column with trays and bubbles
+  c.lineWidth=2;c.strokeStyle=css('--txt');c.beginPath();c.roundRect(X(470),Y(62),X(40),Y(206),10);c.stroke();
+  for(let i=1;i<9;i++){c.strokeStyle=css('--line');c.lineWidth=1;c.beginPath();c.moveTo(X(474),Y(62+i*23));c.lineTo(X(506),Y(62+i*23));c.stroke()}
+  for(let i=0;i<8;i++){const ph=(t*.5+i*.13)%1;c.fillStyle='rgba(96,165,250,.8)';c.beginPath();c.arc(X(478+((i*37)%24)),Y(262-ph*196),2,0,7);c.fill()}
+  // product tank fills with B (orange) and C (gray) in proportion
+  c.strokeStyle=css('--txt');c.lineWidth=2;const px=X(660),pw=X(66),py=Y(198),ph=Y(64);c.fillStyle=B;c.globalAlpha=.6;c.fillRect(px,py+ph*(1-o.S)*.85+ph*.15,pw,ph*o.S*.85);c.fillStyle=Cc;c.fillRect(px,py+ph*.15,pw,ph*(1-o.S)*.85);c.globalAlpha=1;c.strokeRect(px,py,pw,ph);
+  // purge flare
+  const fl=Math.min(1,o.Alost/1.5);if(fl>0.02){c.save();c.shadowColor='#fb923c';c.shadowBlur=14;for(let i=0;i<3;i++){const x=X(634+i*6),hh=(8+14*fl)*(0.8+0.3*Math.sin(t*14+i*2));const g=c.createLinearGradient(0,Y(58),0,Y(58)-hh);g.addColorStop(0,'#f97316');g.addColorStop(1,'#fde047');c.fillStyle=g;c.beginPath();c.moveTo(x-4,Y(58));c.quadraticCurveTo(x,Y(58)-hh*1.1,x+4,Y(58));c.fill()}c.restore()}
+  // labels
+  const lab=(txt,x,y,col,al='center',b=false)=>{c.fillStyle=col||css('--txt');c.font=(b?'600 ':'')+"12px 'IBM Plex Sans',sans-serif";c.textAlign=al;c.fillText(txt,X(x),Y(y))};
+  lab('Fresh A',32,172,'#93c5fd','center',true);lab(`${PLC.F0} mol/min`,32,250,css('--mut'));
+  lab('Reactor',280,140,css('--txt'),'center',true);lab(`${o.T} K · ${o.V} L`,280,268,mix('#fca5a5','#fb923c',heat));lab(`${(o.X*100).toFixed(0)}% reacts per pass`,280,284,css('--mut'));
+  lab('Separator',490,54+0,css('--txt'),'center',true);
+  lab(`♻ recycle ${f(o.Arec,2)} mol/min`,320,22,'#93c5fd','center',true);
+  lab(`purge (lost A) ${f(o.Alost,2)} mol/min`,650,82,'#cbd5e1','left');
+  lab('Product',693,190,B,'center',true);lab(`B ${f(o.B,2)} · waste C ${f(o.C,2)} mol/min`,693,280+26,css('--mut'));
+  c.font="11px 'IBM Plex Sans',sans-serif";c.textAlign='left';c.fillStyle=A;c.fillText('● A ingredient',X(14),H-8);c.fillStyle=B;c.fillText('● B product',X(14)+100,H-8);c.fillStyle=Cc;c.fillText('● C waste',X(14)+186,H-8)}
+
+// ══════════ MISSIONS, QUIZZES & REWARDS ══════════
+const MISSIONS={
+  reactor:[{id:'r1',t:'Get the <b>stirred tank</b> to 95%+ converted while keeping it 500 L or smaller',ok:()=>{const s=reactorAnim.s;return s&&s.Xc>=.95&&s.V<=500}},
+    {id:'r2',t:'Find settings where both reactors are within 2% of each other',ok:()=>{const s=reactorAnim.s;return s&&Math.abs(s.Xp-s.Xc)<.02}},
+    {id:'r3',t:'Second order: get the tube to 90%+ at 360 K or cooler',ok:()=>{const s=reactorAnim.s;return s&&s.n===2&&s.Xp>=.9&&s.T<=360}}],
+  distill:[{id:'d1',t:'Make <b>99% pure</b> top product',ok:()=>DA.p&&DA.p.xD>=.99},
+    {id:'d2',t:'…99% pure with <b>20 trays or fewer</b>',ok:()=>DA.p&&DA.p.xD>=.99&&DA.r.N<=20},
+    {id:'d3',t:'Hard split (α ≤ 1.6): 95%+ pure in under 40 trays',ok:()=>DA.p&&DA.p.a<=1.6&&DA.p.xD>=.95&&DA.r.N<40}],
+  control:[{id:'c1',t:'Settle a setpoint step in <b>under 40 s</b>',ok:()=>CM.auto&&CM.settled&&CM.big&&CM.st<40},
+    {id:'c2',t:'…with <b>under 5% overshoot</b> too',ok:()=>CM.auto&&CM.settled&&CM.big&&CM.st<40&&CM.ov<5},
+    {id:'c3',t:'Make the loop go <b>unstable</b> (it teaches a lot!)',ok:()=>CM.auto&&CM.unstable},
+    {id:'c4',t:'Recover from an open drain valve',ok:()=>CM.auto&&CM.dist&&CM.settled&&CS.t-CS.distT>40}],
+  hx:[{id:'h1',t:'Heat the cold water above <b>110 °C</b>',ok:()=>hxAnim.r&&hxAnim.r.Tco>=110},
+    {id:'h2',t:'In <b>co-current</b> mode, get efficiency above 60%',ok:()=>hxAnim.r&&!hxAnim.p.counter&&hxAnim.r.e>.6},
+    {id:'h3',t:'Move <b>500 kW</b> or more with 30 m² or less',ok:()=>hxAnim.r&&hxAnim.r.Q>=500&&hxAnim.p.A<=30}],
+  plant:[{id:'p1',t:'Earn more than <b>$230 per hour</b>',ok:()=>PL.o&&PL.o.profit>230},
+    {id:'p2',t:'Keep selectivity above 98% while earning $200+/hour',ok:()=>PL.o&&PL.o.S>=.98&&PL.o.profit>=200},
+    {id:'p3',t:'Get within 1% of the optimizer\'s best <b>by hand</b> (no 🤖)',ok:()=>PL.o&&PLbest&&!PL.auto&&PL.o.profit>=PLbest.profit*.99}],
+  kinetics:[{id:'k1',t:'Run the virtual experiment',ok:()=>KS.done},
+    {id:'k2',t:'Run it at <b>90 °C</b> or hotter',ok:()=>KS.done&&KS.T>=90},
+    {id:'k3',t:'Enter your <b>own</b> data and get R² above 0.95',ok:()=>KM.edited&&KM.r2>.95}]};
+const QUIZ={
+  reactor:[{q:'Why does the tube reactor usually need less volume than the stirred tank?',a:['It runs hotter','Near its entrance the ingredient is still concentrated, so it reacts fast there','Tubes are cheaper to build'],c:1,e:'Reaction speed depends on how much ingredient is around. The stirred tank instantly dilutes everything to the low outlet level, while the tube keeps it high near the inlet.'},
+    {q:'Raising the temperature by 10 K usually makes a reaction…',a:['Slower','About the same speed','Noticeably faster, often 1.5–3×'],c:2,e:'That\'s the Arrhenius equation: speed grows exponentially with temperature.'},
+    {q:'If you double the flow rate into the same reactor, the time each molecule spends inside…',a:['Doubles','Halves','Stays the same'],c:1,e:'Time inside = volume ÷ flow rate. Twice the flow means half the time, so less gets converted.'}],
+  distill:[{q:'What does each step on the staircase graph stand for?',a:['One minute of operation','One tray (stage) in the tower','One liter of product'],c:1,e:'Each step is one equilibrium stage: a place where vapor and liquid meet and swap molecules.'},
+    {q:'Sending more liquid back down the tower (more reflux)…',a:['Means fewer trays but more energy','Means more trays and less energy','Changes nothing'],c:0,e:'Reflux helps separation, so you need fewer trays, but all that liquid must be boiled again at the bottom.'},
+    {q:'Which mixture is hardest to separate?',a:['α = 6','α = 2.4','α = 1.3'],c:2,e:'α measures how differently the two liquids boil. Close to 1 means they behave almost the same, so it\'s very hard.'}],
+  control:[{q:'What is the "setpoint"?',a:['The valve position','The target the controller is trying to hold','The tank\'s maximum height'],c:1,e:'The setpoint is the goal, here the target water level (orange dashed line).'},
+    {q:'Why does the "Aggressive" controller wobble forever?',a:['The tank leaks','The pipe delay means it reacts to old information and overcorrects','The sensor is broken'],c:1,e:'Big reactions plus a delay cause overshoot after overshoot. That\'s the classic cause of instability.'},
+    {q:'What does the integral part ("fixes leftover error") do?',a:['Removes the small offset a simple controller leaves behind','Makes the tank bigger','Speeds up the water'],c:0,e:'Integral action keeps nudging the valve while any error remains, so the level ends exactly on target.'}],
+  hx:[{q:'"Counter-current" means the two fluids flow…',a:['In the same direction','In opposite directions','Through the same pipe'],c:1,e:'Opposite directions keep a temperature difference all along the exchanger.'},
+    {q:'How can counter-current flow make the cold water leave hotter than the hot stream\'s exit?',a:['It can\'t','The cold water leaves right where the hottest liquid enters','The pipes add heat'],c:1,e:'In counter-current flow, the cold outlet sits next to the hot inlet, so it can get hotter than the hot outlet.'},
+    {q:'Making the exchanger bigger and bigger…',a:['Increases heat moved forever at the same rate','Increases heat moved, but with diminishing returns','Reduces heat moved'],c:1,e:'As the temperatures get closer, each extra square meter moves less heat.'}],
+  plant:[{q:'Why recycle the unreacted ingredient?',a:['To avoid paying for ingredient that just gets thrown away','To make the reactor hotter','Because it\'s required by law'],c:0,e:'Raw materials are usually the biggest cost. Recycling lets almost all of it become product eventually.'},
+    {q:'Why not run the reactor as hot as possible?',a:['The reactor would melt','A side reaction makes more waste, and heating costs money','Hot reactions are slower'],c:1,e:'The waste reaction has a higher activation energy, so it gains on the good reaction as temperature rises.'},
+    {q:'What does the 🤖 optimizer actually do?',a:['Guesses randomly','Tries thousands of designs and keeps the most profitable one','Asks the internet'],c:1,e:'It\'s a search: test every combination on a grid, then zoom in around the best one. Engineers use the same idea with fancier math.'}],
+  kinetics:[{q:'Activation energy describes…',a:['How much energy the tablet contains','How strongly the reaction speed depends on temperature','How big the tablet is'],c:1,e:'A high activation energy means temperature has a big effect on speed.'},
+    {q:'An R² close to 1 means…',a:['Your data falls almost exactly on the straight line','You did one trial','The water was hot'],c:0,e:'R² measures how well the line fits. 1.0 is perfect.'},
+    {q:'Why repeat each temperature several times?',a:['To use up tablets','To average out random measurement errors','It makes the water warmer'],c:1,e:'Each measurement has some error (reaction time, thermometer…). Averaging repeats makes the result more reliable.'}]};
+let BADGES=new Set();try{BADGES=new Set(JSON.parse(localStorage.getItem('pl_badges')||'[]'))}catch(e){}
+const TOTAL=Object.values(MISSIONS).reduce((n,l)=>n+l.length,0)+Object.keys(QUIZ).length;
+function award(id,msg){if(BADGES.has(id))return;BADGES.add(id);try{localStorage.setItem('pl_badges',JSON.stringify([...BADGES]))}catch(e){}confetti();toast(msg);updBadges()}
+function updBadges(){$('badges').textContent=`🏆 ${BADGES.size} / ${TOTAL}`}
+function checkMissions(m){const L=MISSIONS[m];if(!L)return;let h='';for(const x of L){if(!BADGES.has(x.id)){try{if(x.ok())award(x.id,'🏆 Mission complete! '+x.t.replace(/<[^>]+>/g,''))}catch(e){}}h+=`<li class="${BADGES.has(x.id)?'done':''}">${BADGES.has(x.id)?'✅':'⬜'} ${x.t}</li>`}const el=$(m+'_mis');if(el&&el.innerHTML!==h)el.innerHTML=h}
+function renderQuiz(m){const el=$(m+'_quiz');if(!el)return;el.innerHTML=QUIZ[m].map((x,i)=>`<p><b>${i+1}. ${x.q}</b></p>${x.a.map((a,j)=>`<button class="qa" data-m="${m}" data-i="${i}" data-j="${j}">${a}</button>`).join('')}<div class="qe" id="${m}_qe${i}"></div>`).join('')}
+const QOK={};
+document.addEventListener('click',e=>{const b=e.target.closest('.qa');if(!b)return;const {m,i,j}=b.dataset,x=QUIZ[m][+i],ok=+j===x.c;b.classList.add(ok?'right':'wrong');
+  $(`${m}_qe${i}`).innerHTML=ok?'✅ '+x.e:'Not quite. Try another answer.';if(ok){(QOK[m]=QOK[m]||new Set()).add(+i);if(QOK[m].size===QUIZ[m].length)award(m+'_quiz','🧠 Quiz mastered! All answers right.')}});
+function toast(msg){const t=$('toast');t.innerHTML=msg;t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('on'),3200)}
+const FX=[];function confetti(){const W=innerWidth;for(let i=0;i<140;i++)FX.push({x:W/2+(Math.random()-.5)*200,y:innerHeight*.35,vx:(Math.random()-.5)*700,vy:-300-Math.random()*500,r:Math.random()*6,c:['#2dd4bf','#60a5fa','#f472b6','#f59e0b','#4ade80'][i%5],life:2.2})}
+function animFX(dt){if(!FX.length&&!animFX.dirty)return;const S=setup($('fx'));if(!S)return;const {c}=S;animFX.dirty=FX.length>0;
+  for(const p of FX){p.vy+=900*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.99;p.life-=dt;p.r+=dt*8;c.save();c.translate(p.x,p.y);c.rotate(p.r);c.fillStyle=p.c;c.globalAlpha=Math.max(0,Math.min(1,p.life));c.fillRect(-4,-2.5,8,5);c.restore()}
+  for(let i=FX.length-1;i>=0;i--)if(FX[i].life<=0)FX.splice(i,1)}
+Object.keys(QUIZ).forEach(renderQuiz);updBadges();
+
 // ══════════ BACKGROUND: slowly drifting benzene rings ══════════
 const BG=Array.from({length:14},()=>({x:Math.random(),y:Math.random(),r:16+Math.random()*30,a:Math.random()*6,va:(Math.random()-.5)*.2,vx:(Math.random()-.5)*.008,vy:(Math.random()-.5)*.008,c:['#2dd4bf','#60a5fa','#f472b6','#f59e0b'][Math.random()*4|0]}));
 function animBG(dt){const S=setup($('bg'));if(!S)return;const {c,W,H}=S;c.lineWidth=1.5;c.globalAlpha=.08;
   for(const m of BG){m.x=(m.x+m.vx*dt+1)%1;m.y=(m.y+m.vy*dt+1)%1;m.a+=m.va*dt;const X=m.x*W,Y=m.y*H;c.strokeStyle=m.c;c.beginPath();for(let i=0;i<=6;i++){const an=m.a+i*Math.PI/3;c.lineTo(X+m.r*Math.cos(an),Y+m.r*Math.sin(an))}c.stroke();c.beginPath();c.arc(X,Y,m.r*.55,0,7);c.stroke()}c.globalAlpha=1}
 
 // ══════════ NAVIGATION & MAIN LOOP ══════════
-const DRAW={reactor:drawReactor,distill:drawDistill,control:drawControl,hx:drawHX,kinetics:drawKinetics};
+const DRAW={reactor:drawReactor,distill:drawDistill,control:drawControl,hx:drawHX,plant:drawPlant,kinetics:drawKinetics};
 let tab='reactor';
 function show(t){if(!DRAW[t])t='reactor';tab=t;document.querySelectorAll('.mod').forEach(m=>m.classList.toggle('on',m.id===t));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));if(location.hash!=='#/'+t)history.replaceState(null,'','#/'+t);requestAnimationFrame(()=>t==='distill'?drawDistill(true):DRAW[t]())}
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>show(b.dataset.t));
@@ -624,10 +808,12 @@ addEventListener('resize',()=>DRAW[tab]());
 pidReset();
 let last=performance.now();
 function loop(now){const dt=Math.min(0.05,(now-last)/1000);last=now;
-  animBG(dt);
+  animBG(dt);animFX(dt);
+  loop.mt=(loop.mt||0)+dt;if(loop.mt>.25){loop.mt=0;checkMissions(tab)}
   if(tab==='reactor')animReactor(dt);
   else if(tab==='distill')animDistill(dt);
   else if(tab==='kinetics')animKinetics(dt);
+  else if(tab==='plant')animPlant(dt);
   else if(tab==='hx')animHX(dt);
   else if(tab==='control'){for(let i=0;i<10;i++)pidStep();drawControl()}  // 10 × 0.05 s per frame ≈ 30× real time at 60 fps
   requestAnimationFrame(loop)}
